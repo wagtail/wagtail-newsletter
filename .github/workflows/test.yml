@@ -59,7 +59,7 @@ jobs:
 
     services:
       postgres:
-        image: ${{ matrix.postgres || 'postgres:11' }}
+        image: ${{ matrix.postgres || 'postgres:12' }}
         env:
           POSTGRES_PASSWORD: postgres
         ports:

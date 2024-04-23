@@ -38,6 +38,9 @@ dependencies = [
 testing = [
     "dj-database-url==2.1.0",
     "pre-commit==3.4.0",
+    "pytest==8.1.1",
+    "pytest-cov==5.0.0",
+    "pytest-django==4.8.0",
 ]
 ci = [
     "tox==4.11.3",
@@ -58,3 +61,6 @@ exclude = [
     "*.ini",
     "*.yml",
 ]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "wagtail_newsletter.test.settings"
