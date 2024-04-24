@@ -3,7 +3,7 @@ from django.views.i18n import JavaScriptCatalog
 from wagtail import hooks
 
 
-@hooks.register("register_admin_urls")
+@hooks.register("register_admin_urls")  # type: ignore
 def register_admin_urls():
     urls = [
         path(
