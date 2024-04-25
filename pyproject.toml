@@ -47,6 +47,10 @@ ci = [
     "tox==4.11.3",
     "tox-gh-actions==3.1.3",
 ]
+docs = [
+    "sphinx==7.3.7",
+    "sphinx-wagtail-theme==6.3.0",
+]
 
 [project.urls]
 Home = "https://github.com/wagtail/wagtail-newsletter"
