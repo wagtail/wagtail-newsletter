@@ -5,7 +5,7 @@ Welcome to Wagtail Newsletter's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+This is a work in progress.
 
 Indices and tables
 ==================
