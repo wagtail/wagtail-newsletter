@@ -32,6 +32,7 @@ dynamic = ["version"]
 dependencies = [
     "Django>=4.2",
     "Wagtail>=5.2",
+    "queryish>=0.2",
 ]
 
 [project.optional-dependencies]

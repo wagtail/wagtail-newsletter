@@ -5,7 +5,11 @@ from django.core.exceptions import ImproperlyConfigured
 from mailchimp_marketing import Client
 from mailchimp_marketing.api_client import ApiClientError
 
-from . import Audience, AudienceNotFoundError, AudienceSegment, CampaignBackend
+from ..audiences import (
+    Audience,
+    AudienceSegment,
+)
+from . import CampaignBackend
 
 
 class MailchimpCampaignBackend(CampaignBackend):
@@ -41,7 +45,7 @@ class MailchimpCampaignBackend(CampaignBackend):
 
         except ApiClientError as error:
             if error.status_code == 404:
-                raise AudienceNotFoundError from error
+                raise Audience.DoesNotExist from error
 
             raise
 
