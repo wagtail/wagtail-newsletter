@@ -15,6 +15,8 @@ DEBUG = True
 ALLOWED_HOSTS = ["localhost"]
 
 INSTALLED_APPS = [
+    "wagtail_newsletter",
+    "demo",
     "wagtail.contrib.search_promotions",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
@@ -39,8 +41,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
-    "wagtail_newsletter",
-    "demo",
 ]
 
 MIDDLEWARE = [
