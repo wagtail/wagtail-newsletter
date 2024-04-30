@@ -1,5 +1,3 @@
-import os
-
 from pathlib import Path
 
 import dj_database_url
@@ -56,7 +54,7 @@ MIDDLEWARE = [
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
 ]
 
-ROOT_URLCONF = "wagtail_newsletter.test.urls"
+ROOT_URLCONF = "demo.urls"
 
 TEMPLATES = [
     {
@@ -99,10 +97,10 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
-STATIC_ROOT = os.path.join(BASE_DIR, "test-static")
+STATIC_ROOT = PROJECT_DIR / "static_root"
 STATIC_URL = "/static/"
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "test-media")
+MEDIA_ROOT = PROJECT_DIR / "media_root"
 
 WAGTAILADMIN_BASE_URL = "http://localhost:8000"
 WAGTAIL_SITE_NAME = "Wagtail Newsletter demo site"

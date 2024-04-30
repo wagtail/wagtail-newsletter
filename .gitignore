@@ -16,3 +16,5 @@ __pycache__/
 /test-media
 /docs/_build
 /demo/db.sqlite3
+/demo/static_root
+/demo/media_root
