@@ -56,6 +56,9 @@ docs = [
 mailchimp = [
     "mailchimp-marketing>=3.0.80",
 ]
+mrml = [
+    "mrml>=0.1.13",
+]
 
 [project.urls]
 Home = "https://github.com/wagtail/wagtail-newsletter"

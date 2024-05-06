@@ -1,7 +1,9 @@
-from typing import Optional
+from typing import Any, Optional
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from wagtail.admin.panels import FieldPanel, ObjectList, TabbedInterface
 from wagtail.models import Page
@@ -94,6 +96,11 @@ class NewsletterPageMixin(Page):
             FieldPanel("newsletter_subject"),
         ]
 
+    preview_modes = [  # type: ignore
+        ("", _("Default")),
+        ("newsletter", _("Newsletter")),
+    ]
+
     @classmethod
     def get_edit_handler(cls):
         tabs = []
@@ -133,3 +140,23 @@ class NewsletterPageMixin(Page):
             clean=False,
         )
         return revision
+
+    newsletter_template: str
+
+    def get_newsletter_template(self) -> str:
+        return self.newsletter_template
+
+    def get_newsletter_context(self) -> "dict[str, Any]":
+        return {"page": self}
+
+    def get_newsletter_html(self):
+        return render_to_string(
+            template_name=self.get_newsletter_template(),
+            context=self.get_newsletter_context(),
+        )
+
+    def serve_preview(self, request, mode_name):  # type: ignore
+        if mode_name == "newsletter":
+            return HttpResponse(self.get_newsletter_html().encode())
+
+        return super().serve_preview(request, mode_name)
