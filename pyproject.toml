@@ -37,6 +37,7 @@ dependencies = [
 [project.optional-dependencies]
 testing = [
     "dj-database-url==2.1.0",
+    "django-stubs==4.2.7",
     "pre-commit==3.4.0",
     "pyright==1.1.360",
     "pytest==8.1.1",

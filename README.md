@@ -24,3 +24,7 @@ Turn Wagtail pages into newsletters.
 
 - `python -m pip install wagtail-newsletter`
 - ...
+
+## Sample project
+
+There is a sample project in the [demo](./demo/) subdirectory. Check out its README for instructions on how to get it running.
