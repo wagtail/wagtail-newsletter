@@ -1,30 +1,12 @@
-from dataclasses import dataclass
-
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from mailchimp_marketing import Client
 from mailchimp_marketing.api_client import ApiClientError
 
-
-@dataclass
-class MailchimpAudience:
-    id: str
-    name: str
-    member_count: int
+from . import Audience, AudienceNotFoundError, AudienceSegment, CampaignBackend
 
 
-@dataclass
-class MailchimpAudienceSegment:
-    id: str
-    name: str
-    member_count: int
-
-
-class AudienceNotFoundError(LookupError):
-    pass
-
-
-class MailchimpCampaignBackend:
+class MailchimpCampaignBackend(CampaignBackend):
     def __init__(self):
         self.client = Client()
         self.client.set_config(self.get_client_config())
@@ -40,10 +22,10 @@ class MailchimpCampaignBackend:
             "timeout": 30,
         }
 
-    def get_audiences(self) -> "list[MailchimpAudience]":
+    def get_audiences(self) -> "list[Audience]":
         audiences = self.client.lists.get_all_lists()["lists"]
         return [
-            MailchimpAudience(
+            Audience(
                 id=audience["id"],
                 name=audience["name"],
                 member_count=audience["stats"]["member_count"],
@@ -51,7 +33,7 @@ class MailchimpCampaignBackend:
             for audience in audiences
         ]
 
-    def get_audience_segments(self, audience_id) -> "list[MailchimpAudienceSegment]":
+    def get_audience_segments(self, audience_id) -> "list[AudienceSegment]":
         try:
             segments = self.client.lists.list_segments(audience_id)["segments"]
 
@@ -62,7 +44,7 @@ class MailchimpCampaignBackend:
             raise
 
         return [
-            MailchimpAudienceSegment(
+            AudienceSegment(
                 # Include the audience ID in the segment ID, so we can find the segment
                 # later.
                 id=f"{audience_id}/{segment['id']}",

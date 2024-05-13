@@ -5,12 +5,12 @@ import pytest
 from django.core.exceptions import ImproperlyConfigured
 from mailchimp_marketing.api_client import ApiClientError
 
-from wagtail_newsletter.campaign_backends.mailchimp import (
+from wagtail_newsletter.campaign_backends import (
+    Audience,
     AudienceNotFoundError,
-    MailchimpAudience,
-    MailchimpAudienceSegment,
-    MailchimpCampaignBackend,
+    AudienceSegment,
 )
+from wagtail_newsletter.campaign_backends.mailchimp import MailchimpCampaignBackend
 
 
 class MockMailchimpCampaignBackend(MailchimpCampaignBackend):
@@ -40,8 +40,8 @@ def test_get_audiences(backend: MockMailchimpCampaignBackend):
     }
 
     assert backend.get_audiences() == [
-        MailchimpAudience(id="be13e6ca91", name="Torchbox", member_count=8),
-        MailchimpAudience(id="9af08f2afa", name="Other", member_count=13),
+        Audience(id="be13e6ca91", name="Torchbox", member_count=8),
+        Audience(id="9af08f2afa", name="Other", member_count=13),
     ]
 
 
@@ -56,15 +56,9 @@ def test_get_audience_segments(backend: MockMailchimpCampaignBackend):
     }
 
     assert backend.get_audience_segments("be13e6ca91") == [
-        MailchimpAudienceSegment(
-            id="be13e6ca91/2103836", name="Membership", member_count=3
-        ),
-        MailchimpAudienceSegment(
-            id="be13e6ca91/2103837", name="Personal", member_count=1
-        ),
-        MailchimpAudienceSegment(
-            id="be13e6ca91/2103838", name="Sponsors", member_count=1
-        ),
+        AudienceSegment(id="be13e6ca91/2103836", name="Membership", member_count=3),
+        AudienceSegment(id="be13e6ca91/2103837", name="Personal", member_count=1),
+        AudienceSegment(id="be13e6ca91/2103838", name="Sponsors", member_count=1),
     ]
 
 
