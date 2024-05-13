@@ -5,6 +5,11 @@ from django.conf import settings
 from django.utils.module_loading import import_string
 
 
+DEFAULT_CAMPAIGN_BACKEND = (
+    "wagtail_newsletter.campaign_backends.mailchimp.MailchimpCampaignBackend"
+)
+
+
 @dataclass
 class Audience:
     id: str
@@ -36,9 +41,7 @@ class CampaignBackend:
 def get_backend() -> CampaignBackend:
     backend_class = import_string(
         getattr(
-            settings,
-            "WAGTAIL_NEWSLETTER_CAMPAIGN_BACKEND",
-            "wagtail_newsletter.campaign_backends.mailchimp.MailchimpCampaignBackend",
+            settings, "WAGTAIL_NEWSLETTER_CAMPAIGN_BACKEND", DEFAULT_CAMPAIGN_BACKEND
         )
     )
     return backend_class()
