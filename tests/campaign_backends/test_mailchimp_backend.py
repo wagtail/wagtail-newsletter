@@ -9,6 +9,8 @@ from wagtail_newsletter.campaign_backends import (
     Audience,
     AudienceNotFoundError,
     AudienceSegment,
+    CampaignBackend,
+    get_backend,
 )
 from wagtail_newsletter.campaign_backends.mailchimp import MailchimpCampaignBackend
 
@@ -16,6 +18,10 @@ from wagtail_newsletter.campaign_backends.mailchimp import MailchimpCampaignBack
 class MockMailchimpCampaignBackend(MailchimpCampaignBackend):
     def __init__(self):
         self.client = Mock()
+
+
+class CustomCampaignBackend(CampaignBackend):
+    pass
 
 
 @pytest.fixture
@@ -67,3 +73,20 @@ def test_get_audience_segments_list_not_found(backend: MockMailchimpCampaignBack
 
     with pytest.raises(AudienceNotFoundError):
         backend.get_audience_segments("be13e6ca91")
+
+
+@pytest.mark.parametrize(
+    "dotted_path,cls",
+    [
+        (None, MailchimpCampaignBackend),
+        (f"{__name__}.CustomCampaignBackend", CustomCampaignBackend),
+    ],
+)
+def test_get_backend_lookup(settings, dotted_path, cls):
+    settings.WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY = "mock key"
+    if dotted_path is None:
+        del settings.WAGTAIL_NEWSLETTER_CAMPAIGN_BACKEND
+    else:
+        settings.WAGTAIL_NEWSLETTER_CAMPAIGN_BACKEND = dotted_path
+
+    assert type(get_backend()) is cls
