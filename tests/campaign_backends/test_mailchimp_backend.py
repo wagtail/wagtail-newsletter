@@ -5,13 +5,11 @@ import pytest
 from django.core.exceptions import ImproperlyConfigured
 from mailchimp_marketing.api_client import ApiClientError
 
-from wagtail_newsletter.campaign_backends import (
+from wagtail_newsletter.audiences import (
     Audience,
-    AudienceNotFoundError,
     AudienceSegment,
-    CampaignBackend,
-    get_backend,
 )
+from wagtail_newsletter.campaign_backends import CampaignBackend, get_backend
 from wagtail_newsletter.campaign_backends.mailchimp import MailchimpCampaignBackend
 
 
@@ -75,7 +73,7 @@ def test_get_audience_segments(backend: MockMailchimpCampaignBackend):
 def test_get_audience_segments_list_not_found(backend: MockMailchimpCampaignBackend):
     backend.client.lists.list_segments.side_effect = ApiClientError("", 404)
 
-    with pytest.raises(AudienceNotFoundError):
+    with pytest.raises(Audience.DoesNotExist):
         backend.get_audience_segments("be13e6ca91")
 
 

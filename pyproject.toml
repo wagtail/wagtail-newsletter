@@ -77,3 +77,6 @@ pythonVersion = "3.8"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "wagtail_newsletter.test.settings"
+filterwarnings = [
+    "ignore:The default scheme will be changed.*forms.URLField:django.utils.deprecation.RemovedAfterNextVersionWarning",
+]
