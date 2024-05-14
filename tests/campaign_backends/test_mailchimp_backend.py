@@ -55,16 +55,16 @@ def test_get_audience_segments(backend: MockMailchimpCampaignBackend):
     backend.client.lists.list_segments.return_value = {
         "list_id": "be13e6ca91",
         "segments": [
-            {"id": 2103836, "member_count": 3, "name": "Membership"},
-            {"id": 2103837, "member_count": 1, "name": "Personal"},
-            {"id": 2103838, "member_count": 1, "name": "Sponsors"},
+            {"id": 2103836, "member_count": 3, "name": "Segment One"},
+            {"id": 2103837, "member_count": 1, "name": "Segment Two"},
+            {"id": 2103838, "member_count": 1, "name": "Segment Three"},
         ],
     }
 
     assert backend.get_audience_segments("be13e6ca91") == [
-        AudienceSegment(id="be13e6ca91/2103836", name="Membership", member_count=3),
-        AudienceSegment(id="be13e6ca91/2103837", name="Personal", member_count=1),
-        AudienceSegment(id="be13e6ca91/2103838", name="Sponsors", member_count=1),
+        AudienceSegment(id="be13e6ca91/2103836", name="Segment One", member_count=3),
+        AudienceSegment(id="be13e6ca91/2103837", name="Segment Two", member_count=1),
+        AudienceSegment(id="be13e6ca91/2103838", name="Segment Three", member_count=1),
     ]
 
 
