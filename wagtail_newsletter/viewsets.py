@@ -4,6 +4,7 @@ from wagtail.admin.views.generic.chooser import ChooseView
 from wagtail.admin.viewsets.chooser import ChooserViewSet
 from wagtail.admin.viewsets.model import ModelViewSet
 
+from . import get_recipients_model_string
 from .audiences import Audience, AudienceSegment
 from .models import NewsletterRecipients
 
@@ -66,3 +67,14 @@ class NewsletterRecipientsViewSet(ModelViewSet):
 
 
 newsletter_recipients_viewset = NewsletterRecipientsViewSet("newsletter_recipients")
+
+
+class RecipientsChooserViewSet(ChooserViewSet):
+    model = get_recipients_model_string()
+    icon = "group"
+    choose_one_text = "Choose an audience segment"
+    choose_another_text = "Choose another audience segment"
+    choose_view_class = AudienceChooseView
+
+
+recipients_chooser_viewset = RecipientsChooserViewSet("recipients_chooser")

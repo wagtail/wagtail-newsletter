@@ -33,6 +33,7 @@ def register_admin_viewset():
     register_viewsets = [
         viewsets.audience_chooser_viewset,
         viewsets.audience_segment_chooser_viewset,
+        viewsets.recipients_chooser_viewset,
     ]
     if get_recipients_model_string() == DEFAULT_RECIPIENTS_MODEL:
         register_viewsets.append(viewsets.newsletter_recipients_viewset)
