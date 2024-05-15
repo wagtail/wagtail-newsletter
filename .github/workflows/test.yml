@@ -31,11 +31,11 @@ jobs:
           FLIT_ROOT_INSTALL: true
         run: |
           python -m pip install flit
-          python -m flit install --deps=production --extras=testing,ci --symlink
+          python -m flit install --deps=production --extras=mailchimp,testing,ci --symlink
       - uses: pre-commit/action@v3.0.1
-      - uses: jakebailey/pyright-action@v1
+      - uses: jakebailey/pyright-action@v2
         with:
-          version: 1.1.360
+          version: PATH
 
   test-sqlite:
     runs-on: ubuntu-latest

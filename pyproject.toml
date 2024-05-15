@@ -52,6 +52,9 @@ docs = [
     "sphinx==7.3.7",
     "sphinx-wagtail-theme==6.3.0",
 ]
+mailchimp = [
+    "mailchimp-marketing>=3.0.80",
+]
 
 [project.urls]
 Home = "https://github.com/wagtail/wagtail-newsletter"

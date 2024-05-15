@@ -1,3 +1,5 @@
+import os
+
 from pathlib import Path
 
 import dj_database_url
@@ -104,3 +106,7 @@ MEDIA_ROOT = PROJECT_DIR / "media_root"
 
 WAGTAILADMIN_BASE_URL = "http://localhost:8000"
 WAGTAIL_SITE_NAME = "Wagtail Newsletter demo site"
+
+WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY = os.environ.get(
+    "WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY"
+)
