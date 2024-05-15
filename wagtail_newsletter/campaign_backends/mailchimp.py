@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from mailchimp_marketing import Client
@@ -11,7 +13,7 @@ class MailchimpCampaignBackend(CampaignBackend):
         self.client = Client()
         self.client.set_config(self.get_client_config())
 
-    def get_client_config(self):
+    def get_client_config(self) -> "dict[str, Any]":
         if not settings.WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY:
             raise ImproperlyConfigured(
                 "WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY is not set"
