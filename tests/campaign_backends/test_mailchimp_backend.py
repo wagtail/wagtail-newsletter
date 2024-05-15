@@ -21,7 +21,11 @@ class MockMailchimpCampaignBackend(MailchimpCampaignBackend):
 
 
 class CustomCampaignBackend(CampaignBackend):
-    pass
+    def get_audiences(self):
+        raise NotImplementedError
+
+    def get_audience_segments(self, audience_id):
+        raise NotImplementedError
 
 
 @pytest.fixture

@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 
 from django.conf import settings
@@ -28,7 +28,7 @@ class AudienceNotFoundError(LookupError):
     pass
 
 
-class CampaignBackend:
+class CampaignBackend(metaclass=ABCMeta):
     @abstractmethod
     def get_audiences(self) -> "list[Audience]":
         raise NotImplementedError
