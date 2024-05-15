@@ -32,6 +32,7 @@ dynamic = ["version"]
 dependencies = [
     "Django>=4.2",
     "Wagtail>=5.2",
+    "queryish>=0.2",
 ]
 
 [project.optional-dependencies]
@@ -66,6 +67,9 @@ name = "wagtail_newsletter"
 exclude = [
     "wagtail_newsletter/test",
     "testmanage.py",
+    "tests",
+    "demo",
+    "docs",
     ".*",
     "*.ini",
     "*.yml",
@@ -76,3 +80,6 @@ pythonVersion = "3.8"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "wagtail_newsletter.test.settings"
+filterwarnings = [
+    "ignore:The default scheme will be changed.*forms.URLField:django.utils.deprecation.RemovedAfterNextVersionWarning",
+]

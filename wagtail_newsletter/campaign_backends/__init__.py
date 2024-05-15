@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 
 from django.conf import settings
 from django.utils.module_loading import import_string
+
+from .. import audiences
 
 
 DEFAULT_CAMPAIGN_BACKEND = (
@@ -10,31 +11,13 @@ DEFAULT_CAMPAIGN_BACKEND = (
 )
 
 
-@dataclass
-class Audience:
-    id: str
-    name: str
-    member_count: int
-
-
-@dataclass
-class AudienceSegment:
-    id: str
-    name: str
-    member_count: int
-
-
-class AudienceNotFoundError(LookupError):
-    pass
-
-
 class CampaignBackend(ABC):
     @abstractmethod
-    def get_audiences(self) -> "list[Audience]":
+    def get_audiences(self) -> "list[audiences.Audience]":
         raise NotImplementedError
 
     @abstractmethod
-    def get_audience_segments(self, audience_id) -> "list[AudienceSegment]":
+    def get_audience_segments(self, audience_id) -> "list[audiences.AudienceSegment]":
         raise NotImplementedError
 
 
