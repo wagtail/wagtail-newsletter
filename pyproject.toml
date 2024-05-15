@@ -67,6 +67,9 @@ name = "wagtail_newsletter"
 exclude = [
     "wagtail_newsletter/test",
     "testmanage.py",
+    "tests",
+    "demo",
+    "docs",
     ".*",
     "*.ini",
     "*.yml",
