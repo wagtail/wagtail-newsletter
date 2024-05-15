@@ -55,10 +55,6 @@ class CachedApiQueryish(Queryish):
 class AudienceQuerySet(CachedApiQueryish):
     cache_prefix = "wagtail-newsletter-audience-"
 
-    @property
-    def model(self):
-        return Audience
-
     def get_list(self):
         return {
             audience.id: audience
@@ -68,10 +64,6 @@ class AudienceQuerySet(CachedApiQueryish):
 
 class AudienceSegmentQuerySet(CachedApiQueryish):
     cache_prefix = "wagtail-newsletter-audience-segment-"
-
-    @property
-    def model(self):
-        return AudienceSegment
 
     def parse_filters(self):
         filters = super().parse_filters()

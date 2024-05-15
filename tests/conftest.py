@@ -32,9 +32,9 @@ class MemoryCampaignBackend(CampaignBackend):
 
     def get_audience_segments(self, audience_id):
         if audience_id in self.segments:
-            return self.segments[audience_id]
+            return self.segments.get(audience_id, [])
         else:
-            raise AudienceSegment.DoesNotExist
+            raise Audience.DoesNotExist
 
 
 @pytest.fixture

@@ -87,6 +87,10 @@ def test_audience_segment_get_deleted():
         AudienceSegment.objects.get(pk="be13e6ca91/deleted_segment")
 
 
+def test_audience_segment_get_audience_deleted():
+    assert list(AudienceSegment.objects.filter(audience="no-such-audience")) == []
+
+
 def test_non_admin_user_access_denied(client):
     audience_response = client.get(reverse("audience_chooser:choose"))
     assert audience_response.status_code == 302
