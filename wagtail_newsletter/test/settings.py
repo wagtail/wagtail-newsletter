@@ -151,3 +151,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "test-media")
 # Wagtail settings
 
 WAGTAIL_SITE_NAME = "Wagtail Newsletter test site"
+
+WAGTAIL_NEWSLETTER_RECIPIENTS_MODEL = "wagtail_newsletter_test.CustomRecipients"
