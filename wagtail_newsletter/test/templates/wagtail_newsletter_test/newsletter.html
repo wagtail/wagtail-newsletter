@@ -1,0 +1,10 @@
+{% load wagtail_newsletter %}
+
+{% mrml %}
+    <mjml>
+        <mj-body>
+            <h1 class="newsletter">{{ page.title }}</h1>
+            <p>{{ message }}</p>
+        </mj-body>
+    </mjml>
+{% endmrml %}

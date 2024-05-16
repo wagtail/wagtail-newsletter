@@ -1,5 +1,8 @@
+from unittest.mock import Mock
+
 import pytest
 
+from django.test import RequestFactory
 from django.urls import reverse
 from wagtail.models import Site
 
@@ -70,3 +73,42 @@ def test_admin_panels(admin_client):
         for tab in dict(response.context)["edit_handler"].children
     }
     assert panels["Newsletter"] == ["Newsletter recipients", "Newsletter subject"]
+
+
+def test_newsletter_html():
+    page = ArticlePage(title="Page title")
+    html = page.get_newsletter_html()
+    assert '<h1 class="newsletter">Page title</h1>' in html
+
+
+@pytest.mark.django_db
+def test_newsletter_html_get_context():
+    message = "THIS IS A TEST"
+
+    class TestPage(ArticlePage):
+        def get_newsletter_context(self):
+            context = super().get_newsletter_context()
+            context["message"] = message
+            return context
+
+        class Meta:  # type: ignore
+            app_label = "wagtail_newsletter_test"
+
+    page = TestPage()
+    html = page.get_newsletter_html()
+    assert f"<p>{message}</p>" in html
+
+
+@pytest.mark.django_db
+def test_newsletter_html_get_template():
+    page = ArticlePage()
+    page.get_newsletter_template = Mock(side_effect=page.get_newsletter_template)
+    page.get_newsletter_html()
+    assert page.get_newsletter_template.call_count == 1
+
+
+def test_preview_newsletter():
+    page = ArticlePage(title="Page title")
+    request = RequestFactory().get("/")
+    response = page.serve_preview(request, "newsletter")
+    assert '<h1 class="newsletter">Page title</h1>' in response.content.decode()
