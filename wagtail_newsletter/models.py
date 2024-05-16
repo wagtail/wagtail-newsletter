@@ -1,5 +1,6 @@
 from typing import Optional
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from wagtail.admin.panels import FieldPanel, ObjectList, TabbedInterface
@@ -18,6 +19,21 @@ class NewsletterRecipientsBase(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        super().clean()
+
+        if self.segment:
+            segment_ids = [
+                segment.id
+                for segment in audiences.AudienceSegment.objects.filter(
+                    audience=self.audience
+                )
+            ]
+            if self.segment not in segment_ids:
+                raise ValidationError(
+                    {"segment": "The segment is not part of the selected audience."}
+                )
 
     @property
     def member_count(self) -> Optional[int]:
