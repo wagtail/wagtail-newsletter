@@ -73,11 +73,14 @@ class AudienceSegmentQuerySet(CachedApiQueryish):
         elif "pk" in filters:
             self.audience_id = filters["pk"].split("/")[0]
         else:
-            raise RuntimeError("Cannot determine audience ID")
+            self.audience_id = None
 
         return filters
 
     def get_list(self):
+        if self.audience_id is None:
+            return {}
+
         backend = campaign_backends.get_backend()
         try:
             segments = backend.get_audience_segments(self.audience_id)
