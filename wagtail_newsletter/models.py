@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+from django.utils.safestring import SafeString
 from django.utils.translation import gettext_lazy as _
 from wagtail.admin.panels import FieldPanel, ObjectList, TabbedInterface
 from wagtail.models import Page
@@ -149,7 +150,7 @@ class NewsletterPageMixin(Page):
     def get_newsletter_context(self) -> "dict[str, Any]":
         return {"page": self}
 
-    def get_newsletter_html(self):
+    def get_newsletter_html(self) -> SafeString:
         return render_to_string(
             template_name=self.get_newsletter_template(),
             context=self.get_newsletter_context(),

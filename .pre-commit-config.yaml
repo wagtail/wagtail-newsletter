@@ -20,7 +20,7 @@ repos:
       - id: trailing-whitespace
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # ruff config is in ruff.toml
-    rev: v0.3.0
+    rev: v0.4.4
     hooks:
       - id: ruff
         args: [--fix]

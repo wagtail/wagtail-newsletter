@@ -7,19 +7,24 @@ from wagtail.rich_text import EmbedRewriter, LinkRewriter, MultiRuleRewriter, fe
 from wagtail.rich_text.pages import PageLinkHandler
 
 
+def rewrite_db_html_for_email(rich_text):
+    rewriter = _get_rewriter_for_email()
+    return rewriter(rich_text.source)
+
+
 class LinkHandlerForEmail(PageLinkHandler):
     @classmethod
     def expand_db_attributes(cls, attrs):
         try:
             page = cls.get_instance(attrs)
             full_url = page.localized.specific.full_url  # type: ignore
-            return '<a href="%s">' % escape(full_url)
+            return f'<a href="{escape(full_url)}">'
         except Page.DoesNotExist:
             return "<a>"
 
 
 @lru_cache(maxsize=None)
-def get_rewriter_for_email():
+def _get_rewriter_for_email():
     embed_rules = copy(features.get_embed_types())
     link_rules = copy(features.get_link_types())
     link_rules["page"] = LinkHandlerForEmail
@@ -39,8 +44,3 @@ def get_rewriter_for_email():
             ),
         ]
     )
-
-
-def rewrite_db_html_for_email(rich_text):
-    rewriter = get_rewriter_for_email()
-    return rewriter(rich_text.source)
