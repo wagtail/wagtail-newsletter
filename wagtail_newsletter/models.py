@@ -24,6 +24,9 @@ class NewsletterRecipientsBase(models.Model):
         super().clean()
 
         if self.segment:
+            # If this were a normal queryset, we could have called `.exists()`, but
+            # queryish doesn't support `.exists()`, and in any case, it has to perform
+            # a `list_segments` API call.
             segment_ids = [
                 segment.id
                 for segment in audiences.AudienceSegment.objects.filter(
