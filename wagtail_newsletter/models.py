@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from wagtail.admin.panels import FieldPanel, ObjectList, TabbedInterface
@@ -18,7 +20,7 @@ class NewsletterRecipientsBase(models.Model):
         return self.name
 
     @property
-    def member_count(self):
+    def member_count(self) -> Optional[int]:
         if self.segment:
             try:
                 return audiences.AudienceSegment.objects.get(
