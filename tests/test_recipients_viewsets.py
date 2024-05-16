@@ -91,6 +91,10 @@ def test_audience_segment_get_audience_deleted():
     assert list(AudienceSegment.objects.filter(audience="no-such-audience")) == []
 
 
+def test_audience_segment_with_no_audience():
+    assert list(AudienceSegment.objects.all()) == []
+
+
 def test_non_admin_user_access_denied(client):
     audience_response = client.get(reverse("audience_chooser:choose"))
     assert audience_response.status_code == 302
@@ -107,10 +111,3 @@ def test_queryish_extra_filters_raises_exception():
         Audience.objects.filter(foo="bar").first()
 
     assert str(error.value) == "Filters not supported: {'foo': 'bar'}"
-
-
-def test_audience_segment_with_no_audience_raises_exception():
-    with pytest.raises(RuntimeError) as error:
-        AudienceSegment.objects.first()
-
-    assert str(error.value) == "Cannot determine audience ID"
