@@ -24,7 +24,7 @@ jobs:
       - run: flit install --deps=production --extras=mailchimp,mrml,testing
       - run: python -m pip install ./wagtail
 
-      - run: python testmanage.py test
+      - run: pytest -vv
 
       - name: Report failure
         run: |
