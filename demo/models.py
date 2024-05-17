@@ -22,6 +22,8 @@ class ArticlePage(NewsletterPageMixin, Page):  # type: ignore
         FieldPanel("body"),
     ]
 
+    newsletter_template = "demo/article_page_newsletter.html"
+
 
 class CustomRecipients(NewsletterRecipientsBase):
     greeting = RichTextField(blank=True)

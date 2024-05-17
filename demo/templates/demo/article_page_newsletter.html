@@ -1,0 +1,81 @@
+{% load wagtailcore_tags wagtailimages_tags wagtail_newsletter %}
+
+{% mrml %}
+    <mjml>
+        <mj-body>
+            <mj-section padding="0">
+                <mj-column>
+                    <mj-image
+                        src="https://wagtail.org/static/img/this-week-in-wagtail.1799d343b0c6.png"
+                        padding="0 25px"
+                    />
+                </mj-column>
+            </mj-section>
+            {% if page.newsletter_recipients.greeting %}
+                <mj-section padding="0">
+                    <mj-column>
+                        <mj-text padding="0 25px">
+                            {{ page.newsletter_recipients.greeting|newsletter_richtext }}
+                        </mj-text>
+                    </mj-column>
+                </mj-section>
+            {% endif %}
+            {% for block in page.body %}
+                <mj-section padding="0">
+                    <mj-column>
+                        <mj-text padding="0 25px">
+                            {% if block.block_type == "rich_text" %}
+                                {{ block.value|newsletter_richtext }}
+                            {% elif block.block_type == "image" %}
+                                {% image block.value.image width-1200 as image %}
+                                <mj-image src="{{ image.full_url }}" />
+                            {% else %}
+                                {% include_block block %}
+                            {% endif %}
+                        </mj-text>
+                    </mj-column>
+                </mj-section>
+            {% endfor %}
+            {% if page.author %}
+                <mj-section padding="0">
+                    <mj-column>
+                        <mj-text padding="0 25px">
+                            —
+                        </mj-text>
+                        <mj-text padding="0 25px">
+                            {{ page.author }}
+                        </mj-text>
+                    </mj-column>
+                </mj-section>
+            {% endif %}
+
+            <mj-section padding="0">
+                <mj-column>
+                    <mj-text padding="0 25px" align="center">
+                        <a href="https://www.linkedin.com/company/wagtail-cms/">
+                            <img
+                                src="https://cdn-images.mailchimp.com/icons/social-block-v3/block-icons-v3/linkedin-filled-gray-40.png"
+                                style="width: 32px; padding: 5px"
+                            >
+                        </a>
+                        <a href="https://twitter.com/wagtailcms">
+                            <img
+                                src="https://cdn-images.mailchimp.com/icons/social-block-v3/block-icons-v3/twitter-filled-gray-40.png"
+                                style="width: 32px; padding: 5px"
+                            >
+                        </a>
+                    </mj-text>
+                    <mj-text padding="10px 25px">
+                        Want to change how you receive these emails? You can
+                        <a href="*|UPDATE_PROFILE|*">update your preferences</a> or
+                        <a href="*|UNSUB|*">unsubscribe from this list</a>.
+                    </mj-text>
+                    <mj-text padding="0 25px">
+                        *|HTML:LIST_ADDRESS_HTML|*<br />
+                        *|IF:REWARDS|* *|HTML:REWARDS|* *|END:IF|*
+                    </mj-text>
+                </mj-column>
+            </mj-section>
+        </mj-body>
+    </mjml>
+{% endmrml %}

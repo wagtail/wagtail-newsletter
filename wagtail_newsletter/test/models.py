@@ -13,3 +13,5 @@ class CustomRecipients(NewsletterRecipientsBase):
 
 class ArticlePage(NewsletterPageMixin, Page):  # type: ignore
     body = RichTextField(blank=True)
+
+    newsletter_template = "wagtail_newsletter_test/newsletter.html"
