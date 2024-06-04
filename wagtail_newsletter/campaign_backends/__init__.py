@@ -13,12 +13,12 @@ DEFAULT_CAMPAIGN_BACKEND = (
 
 class CampaignBackend(ABC):
     @abstractmethod
-    def get_audiences(self) -> "list[audiences.Audience]":
-        raise NotImplementedError
+    def get_audiences(self) -> "list[audiences.Audience]": ...
 
     @abstractmethod
-    def get_audience_segments(self, audience_id) -> "list[audiences.AudienceSegment]":
-        raise NotImplementedError
+    def get_audience_segments(
+        self, audience_id
+    ) -> "list[audiences.AudienceSegment]": ...
 
 
 def get_backend() -> CampaignBackend:

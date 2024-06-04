@@ -12,8 +12,7 @@ class CachedApiQueryish(Queryish):
     cache_prefix: str
 
     @abstractmethod
-    def get_list(self):
-        raise NotImplementedError
+    def get_list(self): ...
 
     def cache_key(self, pk):
         return f"{self.cache_prefix}{pk}"
