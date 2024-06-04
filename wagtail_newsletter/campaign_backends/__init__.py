@@ -12,6 +12,8 @@ DEFAULT_CAMPAIGN_BACKEND = (
 
 
 class CampaignBackend(ABC):
+    name: str
+
     @abstractmethod
     def get_audiences(self) -> "list[audiences.Audience]": ...
 

@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from wagtail.admin.panels import FieldPanel, ObjectList, TabbedInterface
 from wagtail.models import Page
 
-from . import audiences, get_recipients_model_string
+from . import audiences, get_recipients_model_string, panels
 
 
 class NewsletterRecipientsBase(models.Model):
@@ -92,9 +92,11 @@ class NewsletterPageMixin(Page):
         return [
             FieldPanel(
                 "newsletter_recipients",
+                heading="Recipients",
                 widget=recipients_chooser_viewset.widget_class,
             ),
-            FieldPanel("newsletter_subject"),
+            FieldPanel("newsletter_subject", heading="Subject"),
+            panels.NewsletterPanel(heading="Campaign"),
         ]
 
     preview_modes = [  # type: ignore
@@ -123,8 +125,6 @@ class NewsletterPageMixin(Page):
     # revisions. In effect, these fields behave as if they were not versioned.
     # Subclasses may add their own newsletter-related fields to this list.
     newsletter_persistent_fields = [
-        "newsletter_recipients",
-        "newsletter_subject",
         "newsletter_campaign",
     ]
 

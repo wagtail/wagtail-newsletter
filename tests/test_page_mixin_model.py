@@ -47,19 +47,21 @@ def test_persistent_fields(monkeypatch: pytest.MonkeyPatch):
 
     page.refresh_from_db()
     assert page.title == "title 0"
-    assert page.newsletter_subject == "subject 2"
-    assert page.newsletter_recipients == recipients_2
+    assert page.newsletter_subject == ""
+    assert page.newsletter_recipients is None
     assert page.newsletter_campaign == "campaign 2"
     assert page.body == "body 2"
 
     revs = [rev.as_object() for rev in page.revisions.all()]
-    # All revisions should show the most recent values for the persistent fields.
+    # All revisions should show the most recent values for the persistent field,
+    # `newsletter_campaign`.
     assert {rev.body for rev in revs} == {"body 2"}
-    assert {rev.newsletter_recipients for rev in revs} == {recipients_2}
-    assert {rev.newsletter_subject for rev in revs} == {"subject 2"}
     assert {rev.newsletter_campaign for rev in revs} == {"campaign 2"}
-    # `title` is the control group. Its value should vary across versions.
+    # `title`, `newsletter_recipients` and `newsletter_subject` should vary across
+    # versions.
     assert {rev.title for rev in revs} == {"title 1", "title 2"}
+    assert {rev.newsletter_recipients for rev in revs} == {recipients_1, recipients_2}
+    assert {rev.newsletter_subject for rev in revs} == {"subject 1", "subject 2"}
 
 
 @pytest.mark.django_db
@@ -72,7 +74,7 @@ def test_admin_panels(admin_client):
         tab.heading: [panel.heading for panel in tab.children]
         for tab in dict(response.context)["edit_handler"].children
     }
-    assert panels["Newsletter"] == ["Newsletter recipients", "Newsletter subject"]
+    assert panels["Newsletter"] == ["Recipients", "Subject", "Campaign"]
 
 
 def test_newsletter_html():

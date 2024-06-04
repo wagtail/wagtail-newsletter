@@ -13,6 +13,8 @@ from . import CampaignBackend
 
 
 class MailchimpCampaignBackend(CampaignBackend):
+    name = "Mailchimp"
+
     def __init__(self):
         self.client = Client()
         self.client.set_config(self.get_client_config())
