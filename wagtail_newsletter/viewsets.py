@@ -72,8 +72,8 @@ newsletter_recipients_viewset = NewsletterRecipientsViewSet("newsletter_recipien
 class RecipientsChooserViewSet(ChooserViewSet):
     model = get_recipients_model_string()
     icon = "group"
-    choose_one_text = "Choose an audience segment"
-    choose_another_text = "Choose another audience segment"
+    choose_one_text = "Choose recipients"
+    choose_another_text = "Choose other recipients"
     choose_view_class = AudienceChooseView
 
 
