@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import Generic, TypeVar
 
 from django.conf import settings
 from django.core.cache import caches
@@ -8,12 +9,14 @@ from queryish import Queryish, VirtualModel
 from . import campaign_backends
 
 
-class CachedApiQueryish(Queryish):
+T = TypeVar("T", bound="AudienceBase")
+
+
+class CachedApiQueryish(Queryish, Generic[T]):
     cache_prefix: str
 
     @abstractmethod
-    def get_list(self):
-        raise NotImplementedError
+    def get_list(self) -> "dict[str, T]": ...
 
     def cache_key(self, pk):
         return f"{self.cache_prefix}{pk}"
@@ -24,7 +27,7 @@ class CachedApiQueryish(Queryish):
     def parse_filters(self):
         return dict(self.filters)
 
-    def get_detail(self, pk):
+    def get_detail(self, pk) -> T:
         instance = self.get_list().get(pk, None)
         if instance is None:
             raise self.model.DoesNotExist  # type: ignore
