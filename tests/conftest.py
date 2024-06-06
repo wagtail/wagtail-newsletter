@@ -19,6 +19,8 @@ def clear_cache():
 
 
 class MemoryCampaignBackend(CampaignBackend):
+    name = "Testing"
+
     def __init__(self):
         self.audiences = []
         self.segments = {}
@@ -37,7 +39,7 @@ class MemoryCampaignBackend(CampaignBackend):
             raise Audience.DoesNotExist
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def memory_backend(monkeypatch: pytest.MonkeyPatch):
     backend = MemoryCampaignBackend()
     monkeypatch.setattr(

@@ -1,0 +1,57 @@
+{% extends "wagtailadmin/generic/base.html" %}
+{% load static %}
+
+{% block content %}
+    {% include "wagtailadmin/shared/headers/page_edit_header.html" %}
+
+    <div class="wn-campaign">
+        <h1 class="w-h1">Save campaign</h1>
+
+        <h2>Recipients</h2>
+        <p>
+            {% if recipients %}
+                <em>{{ campaign_data.recipients.name }}</em> with
+                <strong>{{ campaign_data.recipients.member_count }} subscribers</strong>
+            {% else %}
+                <em>Not set</em>
+            {% endif %}
+        </p>
+
+        <h2>Subject</h2>
+        <p>{{ campaign_data.subject }}</p>
+
+        <h2>Body</h2>
+        <iframe id="wn-body"></iframe>
+
+        {{ campaign_data.html|json_script:"wn-html" }}
+
+        <script>
+            document.querySelector("#wn-body").srcdoc = JSON.parse(
+                document.querySelector("#wn-html").textContent
+            );
+        </script>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <a href="{{ next_url }}" class="button no">Cancel</a>
+
+            <button type="button" class="button button-secondary">
+                Save to {{ backend_name }}
+            </button>
+
+            <button type="button" class="button button-secondary">
+                Send test email
+            </button>
+
+            <button type="button" class="button">
+                Send campaign
+            </button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "wagtail_newsletter/css/wagtail_newsletter.css" %}">
+{% endblock %}
