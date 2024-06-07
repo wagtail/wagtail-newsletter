@@ -1,6 +1,13 @@
 {% load wagtailadmin_tags %}
 
 <div class="wn-panel">
+    {% if error_message %}
+        <div class="help-block help-critical">
+            {% icon name="warning" %}
+            {{ error_message }}
+        </div>
+    {% endif %}
+
     <div class="help-block help-info">
         {% icon name="help" %}
         This action will save a new page revision.
@@ -16,4 +23,13 @@
             Save campaign
         </button>
     </p>
+
+    {% if campaign %}
+        <p>
+            <a href="{{ campaign.url }}" target="_blank">
+                {% icon name="link-external" classname="w-w-4 w-h-4" %}
+                Open campaign in {{ backend_name }}
+            </a>
+        </p>
+    {% endif %}
 </div>

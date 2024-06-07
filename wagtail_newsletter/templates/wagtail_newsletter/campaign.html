@@ -1,5 +1,5 @@
 {% extends "wagtailadmin/generic/base.html" %}
-{% load static %}
+{% load static wagtailadmin_tags %}
 
 {% block content %}
     {% include "wagtailadmin/shared/headers/page_edit_header.html" %}
@@ -9,7 +9,7 @@
 
         <h2>Recipients</h2>
         <p>
-            {% if recipients %}
+            {% if campaign_data.recipients %}
                 <em>{{ campaign_data.recipients.name }}</em> with
                 <strong>{{ campaign_data.recipients.member_count }} subscribers</strong>
             {% else %}
@@ -36,7 +36,19 @@
 
             <a href="{{ next_url }}" class="button no">Cancel</a>
 
-            <button type="button" class="button button-secondary">
+
+            <button
+                type="submit"
+                name="action"
+                value="save_draft"
+                class="button button-secondary button-longrunning"
+                data-controller="w-progress"
+                data-action="w-progress#activate"
+                data-w-progress-duration-value="5000"
+                data-w-progress-label-value="Click me 5s"
+                data-w-progress-loading-value="false"
+            >
+                {% icon name="spinner" %}
                 Save to {{ backend_name }}
             </button>
 

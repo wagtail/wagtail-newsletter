@@ -1,9 +1,10 @@
 from typing import cast
 
 from django.http import HttpRequest
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import View
+from wagtail.admin import messages
 from wagtail.admin.views.generic.base import WagtailAdminTemplateMixin
 from wagtail.models import ContentType, Page, Revision
 
@@ -51,3 +52,40 @@ class CampaignView(WagtailAdminTemplateMixin, View):
 
     def get(self, request):
         return self.render_to_response(self.get_context_data())
+
+    def post(self, request):
+        try:
+            campaign_id = self.backend.save_campaign(
+                campaign_id=self.object.newsletter_campaign,
+                **self.campaign_data,
+            )
+
+        except campaign_backends.CampaignBackendError:
+            messages.error(request, "Failed to save campaign")
+            return redirect(".")
+
+        self.object.newsletter_campaign = campaign_id
+        self.object.save(update_fields=["newsletter_campaign"])
+
+        try:
+            campaign = self.backend.get_campaign(campaign_id)
+            if campaign is None:  # pragma: no cover
+                raise RuntimeError("The campaign we just created is not there any more")
+
+        except campaign_backends.CampaignBackendError:
+            messages.error(request, "Failed to load campaign")
+            return redirect(".")
+
+        messages.success(
+            request,
+            f'Campaign "{self.campaign_data["subject"]}" saved successfully.',
+            buttons=[
+                messages.button(
+                    campaign.url,
+                    f"View in {self.backend.name}",
+                    new_window=True,
+                ),
+            ],
+        )
+
+        return redirect(".")
