@@ -16,11 +16,14 @@
     <p>
         <button
             type="submit"
-            class="button"
+            class="button button-secondary button-longrunning"
             name="newsletter_action"
-            value="preview_campaign"
+            value="save_campaign"
+            data-controller="w-progress"
+            data-action="w-progress#activate"
         >
-            Save campaign
+            {% icon name="spinner" %}
+            Save campaign to {{ backend_name }}
         </button>
     </p>
 

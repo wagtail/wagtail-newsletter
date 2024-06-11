@@ -181,11 +181,11 @@ class MailchimpCampaignBackend(CampaignBackend):
     ) -> str:
         body = self.get_campaign_request_body(recipients=recipients, subject=subject)
 
-        if campaign_id is None:
-            campaign_id = self._create_campaign(body)
+        if campaign_id:
+            campaign_id = self._update_campaign(campaign_id, body)
 
         else:
-            campaign_id = self._update_campaign(campaign_id, body)
+            campaign_id = self._create_campaign(body)
 
         self._set_content(campaign_id, html)
         return campaign_id

@@ -34,7 +34,7 @@ class NewsletterPanel(Panel):
                                 """
                                 The campaign <code>{deleted_campaign_id}</code> was
                                 deleted in {backend_name}. Click <strong>Save
-                                campaign</strong> to recreate it.
+                                campaign to {backend_name}</strong> to recreate it.
                                 """,
                                 deleted_campaign_id=self.instance.newsletter_campaign,
                                 backend_name=backend.name,

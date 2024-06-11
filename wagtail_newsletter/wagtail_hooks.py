@@ -1,10 +1,12 @@
-from django.shortcuts import redirect
+from typing import cast
+
 from django.urls import include, path
 from django.views.i18n import JavaScriptCatalog
 from wagtail import hooks
 from wagtail.models import Page
 
-from . import DEFAULT_RECIPIENTS_MODEL, get_recipients_model_string, views, viewsets
+from . import DEFAULT_RECIPIENTS_MODEL, actions, get_recipients_model_string, viewsets
+from .models import NewsletterPageMixin
 
 
 @hooks.register("register_admin_urls")  # type: ignore
@@ -14,11 +16,6 @@ def register_admin_urls():
             "jsi18n/",
             JavaScriptCatalog.as_view(packages=["wagtail_newsletter"]),
             name="javascript_catalog",
-        ),
-        path(
-            "pages/<int:page_id>/revisions/<int:revision_id>/campaign/",
-            views.CampaignView.as_view(),
-            name="campaign",
         ),
     ]
 
@@ -48,9 +45,10 @@ def register_admin_viewset():
 @hooks.register("after_create_page")  # type: ignore
 @hooks.register("after_edit_page")  # type: ignore
 def redirect_to_campaign_page(request, page: Page):
-    if request.POST.get("newsletter_action") == "preview_campaign":
-        return redirect(
-            "wagtail_newsletter:campaign",
-            page_id=page.pk,
-            revision_id=page.latest_revision.pk,
-        )
+    newsletter_action = request.POST.get("newsletter_action")
+
+    if newsletter_action is not None:
+        page = cast(NewsletterPageMixin, page)
+
+        if newsletter_action == "save_campaign":
+            actions.save_campaign(request, page)
