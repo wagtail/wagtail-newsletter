@@ -95,6 +95,13 @@ def test_newsletter_html_get_template():
     assert page.get_newsletter_template.call_count == 1
 
 
+def test_preview_default():
+    page = ArticlePage(title="Page title")
+    request = RequestFactory().get("/")
+    response = page.serve_preview(request, "default").render()  # type: ignore
+    assert '<h1 class="web">Page title</h1>' in response.content.decode()
+
+
 def test_preview_newsletter():
     page = ArticlePage(title="Page title")
     request = RequestFactory().get("/")

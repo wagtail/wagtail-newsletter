@@ -38,6 +38,14 @@ def backend():
     return MockMailchimpCampaignBackend()
 
 
+def test_configure_client(settings):
+    settings.WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY = (
+        "00000000000000000000000000000000-us13"
+    )
+    backend = MailchimpCampaignBackend()
+    assert backend.client.api_client.server == "us13"
+
+
 def test_no_api_key(settings):
     settings.WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY = None
     with pytest.raises(ImproperlyConfigured) as error:
@@ -82,6 +90,15 @@ def test_get_audience_segments_list_not_found(backend: MockMailchimpCampaignBack
 
     with pytest.raises(Audience.DoesNotExist):
         backend.get_audience_segments("be13e6ca91")
+
+
+def test_get_audience_segments_api_error(backend: MockMailchimpCampaignBackend):
+    backend.client.lists.list_segments.side_effect = ApiClientError("", 400)
+
+    with pytest.raises(CampaignBackendError) as error:
+        backend.get_audience_segments("be13e6ca91")
+
+    assert error.match(r"Error while fetching audience segments")
 
 
 @pytest.mark.parametrize(

@@ -105,7 +105,7 @@ class NewsletterPageMixin(Page):
     ]
 
     @classmethod
-    def get_edit_handler(cls):
+    def get_edit_handler(cls):  # pragma: no cover
         tabs = []
 
         if cls.content_panels:

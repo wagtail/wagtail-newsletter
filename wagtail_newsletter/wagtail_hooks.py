@@ -37,7 +37,7 @@ def register_admin_viewset():
         viewsets.audience_segment_chooser_viewset,
         viewsets.recipients_chooser_viewset,
     ]
-    if get_recipients_model_string() == DEFAULT_RECIPIENTS_MODEL:
+    if get_recipients_model_string() == DEFAULT_RECIPIENTS_MODEL:  # pragma: no cover
         register_viewsets.append(viewsets.newsletter_recipients_viewset)
     return register_viewsets
 
@@ -47,8 +47,10 @@ def register_admin_viewset():
 def redirect_to_campaign_page(request, page: Page):
     newsletter_action = request.POST.get("newsletter_action")
 
-    if newsletter_action is not None:
-        page = cast(NewsletterPageMixin, page)
+    if newsletter_action is None:  # pragma: no cover
+        return
 
-        if newsletter_action == "save_campaign":
-            actions.save_campaign(request, page)
+    page = cast(NewsletterPageMixin, page)
+
+    if newsletter_action == "save_campaign":
+        actions.save_campaign(request, page)
