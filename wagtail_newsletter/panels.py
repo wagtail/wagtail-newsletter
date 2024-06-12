@@ -50,5 +50,11 @@ class NewsletterPanel(Panel):
                         context["error_message"] = str(error)
 
             context["backend_name"] = backend.name
+            context["user_email"] = self.request.user.email
             context["campaign"] = campaign
             return context
+
+        class Media:
+            js = [
+                "wagtail_newsletter/js/wagtail_newsletter.js",
+            ]

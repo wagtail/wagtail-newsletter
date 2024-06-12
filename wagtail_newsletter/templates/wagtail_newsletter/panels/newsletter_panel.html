@@ -1,6 +1,11 @@
 {% load wagtailadmin_tags %}
 
-<div class="wn-panel">
+<div
+    class="wn-panel"
+    data-controller="wn-panel"
+    data-wn-panel-user-email-value="{{ user_email }}"
+    data-action="wn-test:send@window->wn-panel#test"
+>
     {% if error_message %}
         <div class="help-block help-critical">
             {% icon name="warning" %}
@@ -8,24 +13,89 @@
         </div>
     {% endif %}
 
-    <div class="help-block help-info">
-        {% icon name="help" %}
-        This action will save a new page revision.
-    </div>
+    {% if not campaign_sent %}
+        <div class="help-block help-info">
+            {% icon name="help" %}
+            These actions will save a new page revision.
+        </div>
 
-    <p>
-        <button
-            type="submit"
-            class="button button-secondary button-longrunning"
-            name="newsletter_action"
-            value="save_campaign"
-            data-controller="w-progress"
-            data-action="w-progress#activate"
-        >
-            {% icon name="spinner" %}
-            Save campaign to {{ backend_name }}
-        </button>
-    </p>
+        <p>
+            <input
+                type="hidden"
+                name="newsletter_test_email_address"
+                data-wn-panel-target="testAddress"
+            >
+
+            <button
+                type="submit"
+                class="button button-secondary button-longrunning"
+                name="newsletter_action"
+                value="save_campaign"
+                data-controller="w-progress"
+                data-action="w-progress#activate"
+            >
+                {% icon name="spinner" %}
+                Save campaign to {{ backend_name }}
+            </button>
+
+            <button
+                type="button"
+                class="button button-secondary button-longrunning"
+                data-a11y-dialog-show="wn-test-dialog"
+                data-controller="w-progress"
+                data-wn-panel-target="testButton"
+            >
+                {% icon name="spinner" %}
+                Send test email
+            </button>
+
+            {% dialog icon_name="mail" id="wn-test-dialog" title="Send test email" %}
+                <form
+                    data-controller="wn-test"
+                    data-action="wn-test#send:prevent"
+                >
+                    <div class="w-field__wrapper " data-field-wrapper="">
+                        <label class="w-field__label" for="id_text" id="id_text-label">
+                            Email address<span class="w-required-mark">*</span>
+                        </label>
+
+                        <div
+                            class="w-field w-field--char_field w-field--text_input"
+                            data-field=""
+                            data-contentpath="text"
+                        >
+                            <div class="w-field__help" id="id_text-helptext" data-field-help="">
+                                <div class="help">Send a test email to this address</div>
+                            </div>
+
+                            <div class="w-field__input" data-field-input="">
+                                <input
+                                    type="email"
+                                    aria-describedby="id_text-helptext"
+                                    required
+                                    id="id_text"
+                                    data-wn-test-target="address"
+                                    value="{{ user_email }}"
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="button button-primary">Send</button>
+                </form>
+            {% enddialog %}
+
+            <button
+                type="submit"
+                class="w-hidden"
+                name="newsletter_action"
+                value="send_test_email"
+                data-wn-panel-target="testSubmit"
+            >
+                Send test email
+            </button>
+        </p>
+    {% endif %}
 
     {% if campaign %}
         <p>

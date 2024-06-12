@@ -54,3 +54,6 @@ def redirect_to_campaign_page(request, page: Page):
 
     if newsletter_action == "save_campaign":
         actions.save_campaign(request, page)
+
+    if newsletter_action == "send_test_email":
+        actions.send_test_email(request, page)
