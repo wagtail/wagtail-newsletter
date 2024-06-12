@@ -31,11 +31,11 @@ class MailchimpCampaign(Campaign):
     status: str
 
     @property
-    def sent(self):
+    def sent(self) -> bool:
         return self.status != CAMPAIGN_STATUS_DRAFT
 
     @property
-    def url(self):
+    def url(self) -> str:
         server = self.backend.client.api_client.server
         base_url = f"https://{server}.admin.mailchimp.com"
 
