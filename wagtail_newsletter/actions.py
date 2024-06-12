@@ -6,7 +6,7 @@ from . import campaign_backends
 from .models import NewsletterPageMixin
 
 
-def save_campaign(request, page: NewsletterPageMixin):
+def save_campaign(request, page: NewsletterPageMixin) -> None:
     backend = campaign_backends.get_backend()
     revision = cast(NewsletterPageMixin, page.latest_revision.as_object())
     subject = revision.newsletter_subject or revision.title

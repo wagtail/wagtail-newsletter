@@ -23,23 +23,6 @@ CAMPAIGN_STATUS_DRAFT = "save"
 logger = logging.getLogger(__name__)
 
 
-def log_and_raise(error: ApiClientError, message: str, **kwargs) -> NoReturn:
-    kwargs["status_code"] = error.status_code
-    kwargs["text"] = error.text
-    logger.exception(
-        f"{message}: {', '.join(f'{key}=%r' for key in kwargs.keys())}",
-        *kwargs.values(),
-    )
-    raise CampaignBackendError(message) from error
-
-
-def require_setting(name):
-    value = getattr(settings, name, None)
-    if value is None:
-        raise ImproperlyConfigured(f"{name} is not set")
-    return value
-
-
 @dataclass
 class MailchimpCampaign(Campaign):
     backend: "MailchimpCampaignBackend"
@@ -74,7 +57,7 @@ class MailchimpCampaignBackend(CampaignBackend):
 
     def get_client_config(self) -> "dict[str, Any]":
         return {
-            "api_key": require_setting("WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY"),
+            "api_key": _require_setting("WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY"),
             "timeout": 30,
         }
 
@@ -97,7 +80,7 @@ class MailchimpCampaignBackend(CampaignBackend):
             if error.status_code == 404:
                 raise Audience.DoesNotExist from error
 
-            log_and_raise(
+            _log_and_raise(
                 error, "Error while fetching audience segments", audience_id=audience_id
             )
 
@@ -119,7 +102,7 @@ class MailchimpCampaignBackend(CampaignBackend):
             return cast(str, self.client.campaigns.create(body)["id"])
 
         except ApiClientError as error:
-            log_and_raise(error, "Error while creating campaign")
+            _log_and_raise(error, "Error while creating campaign")
 
     def _update_campaign(self, campaign_id: str, body) -> str:
         try:
@@ -131,16 +114,16 @@ class MailchimpCampaignBackend(CampaignBackend):
                 # The campaign was deleted on the Mailchimp end; create a new one
                 return self._create_campaign(body)
 
-            log_and_raise(
+            _log_and_raise(
                 error, "Error while updating campaign", campaign_id=campaign_id
             )
 
-    def _set_content(self, campaign_id: str, html: str):
+    def _set_content(self, campaign_id: str, html: str) -> None:
         try:
             self.client.campaigns.set_content(campaign_id, {"html": html})
 
         except ApiClientError as error:
-            log_and_raise(
+            _log_and_raise(
                 error, "Error while saving campaign content", campaign_id=campaign_id
             )
 
@@ -152,8 +135,8 @@ class MailchimpCampaignBackend(CampaignBackend):
     ) -> "dict[str, Any]":
         body = {
             "settings": {
-                "from_name": require_setting("WAGTAIL_NEWSLETTER_FROM_NAME"),
-                "reply_to": require_setting("WAGTAIL_NEWSLETTER_REPLY_TO"),
+                "from_name": _require_setting("WAGTAIL_NEWSLETTER_FROM_NAME"),
+                "reply_to": _require_setting("WAGTAIL_NEWSLETTER_REPLY_TO"),
                 "subject_line": subject,
             },
         }
@@ -190,7 +173,7 @@ class MailchimpCampaignBackend(CampaignBackend):
         self._set_content(campaign_id, html)
         return campaign_id
 
-    def get_campaign(self, campaign_id: str):
+    def get_campaign(self, campaign_id: str) -> Optional[MailchimpCampaign]:
         try:
             data = self.client.campaigns.get(campaign_id)
 
@@ -198,7 +181,7 @@ class MailchimpCampaignBackend(CampaignBackend):
             if error.status_code == 404:
                 return None
 
-            log_and_raise(
+            _log_and_raise(
                 error, "Error while fetching campaign", campaign_id=campaign_id
             )
 
@@ -208,3 +191,20 @@ class MailchimpCampaignBackend(CampaignBackend):
             web_id=data["web_id"],
             status=data["status"],
         )
+
+
+def _log_and_raise(error: ApiClientError, message: str, **kwargs) -> NoReturn:
+    kwargs["status_code"] = error.status_code
+    kwargs["text"] = error.text
+    logger.exception(
+        f"{message}: {', '.join(f'{key}=%r' for key in kwargs.keys())}",
+        *kwargs.values(),
+    )
+    raise CampaignBackendError(message) from error
+
+
+def _require_setting(name):
+    value = getattr(settings, name, None)
+    if value is None:
+        raise ImproperlyConfigured(f"{name} is not set")
+    return value

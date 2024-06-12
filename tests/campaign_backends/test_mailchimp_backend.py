@@ -14,7 +14,7 @@ from wagtail_newsletter.audiences import (
 from wagtail_newsletter.campaign_backends import CampaignBackendError
 from wagtail_newsletter.campaign_backends.mailchimp import (
     MailchimpCampaignBackend,
-    log_and_raise,
+    _log_and_raise,
 )
 from wagtail_newsletter.test.models import CustomRecipients
 
@@ -293,7 +293,7 @@ def test_log_and_raise(caplog: pytest.LogCaptureFixture):
 
     with caplog.at_level(logging.ERROR, "wagtail_newsletter"):
         with pytest.raises(CampaignBackendError) as error:
-            log_and_raise(
+            _log_and_raise(
                 ApiClientError(API_ERROR_TEXT, 400),
                 MESSAGE,
                 test_key=TEST_VALUE,
