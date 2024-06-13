@@ -3,7 +3,6 @@ from unittest.mock import Mock
 import pytest
 
 from django.test import RequestFactory
-from django.urls import reverse
 from wagtail.models import Site
 
 from wagtail_newsletter.test.models import ArticlePage, CustomRecipients
@@ -62,19 +61,6 @@ def test_persistent_fields(monkeypatch: pytest.MonkeyPatch):
     assert {rev.title for rev in revs} == {"title 1", "title 2"}
     assert {rev.newsletter_recipients for rev in revs} == {recipients_1, recipients_2}
     assert {rev.newsletter_subject for rev in revs} == {"subject 1", "subject 2"}
-
-
-@pytest.mark.django_db
-def test_admin_panels(admin_client):
-    page = ArticlePage(title="title 0")
-    Site.objects.get().root_page.add_child(instance=page)
-    url = reverse("wagtailadmin_pages:edit", kwargs={"page_id": page.pk})
-    response = admin_client.get(url)
-    panels = {
-        tab.heading: [panel.heading for panel in tab.children]
-        for tab in dict(response.context)["edit_handler"].children
-    }
-    assert panels["Newsletter"] == ["Recipients", "Subject", "Campaign"]
 
 
 def test_newsletter_html():

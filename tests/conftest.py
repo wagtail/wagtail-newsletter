@@ -38,6 +38,12 @@ class MemoryCampaignBackend(CampaignBackend):
         else:
             raise Audience.DoesNotExist
 
+    def save_campaign(self, **kwargs):
+        raise NotImplementedError
+
+    def get_campaign(self, campaign_id: str):
+        raise NotImplementedError
+
 
 @pytest.fixture(autouse=True)
 def memory_backend(monkeypatch: pytest.MonkeyPatch):
