@@ -12,65 +12,63 @@
         </div>
     {% endif %}
 
-    {% if not campaign_sent %}
-        <div class="help-block help-info">
-            {% icon name="help" %}
-            These actions will save a new page revision.
-        </div>
+    <div class="help-block help-info">
+        {% icon name="help" %}
+        These actions will save a new page revision.
+    </div>
 
-        <p>
-            <input
-                type="hidden"
-                name="newsletter-test-email"
-                data-wn-panel-target="testAddress"
+    <p>
+        <input
+            type="hidden"
+            name="newsletter-test-email"
+            data-wn-panel-target="testAddress"
+        >
+
+        <button
+            type="submit"
+            class="button button-secondary button-longrunning"
+            name="newsletter-action"
+            value="save_campaign"
+            data-controller="w-progress"
+            data-action="w-progress#activate"
+        >
+            {% icon name="spinner" %}
+            Save campaign to {{ backend_name }}
+        </button>
+
+        <button
+            type="button"
+            class="button button-secondary button-longrunning"
+            data-a11y-dialog-show="wn-test-dialog"
+            data-controller="w-progress"
+            data-wn-panel-target="testButton"
+        >
+            {% icon name="spinner" %}
+            Send test email
+        </button>
+
+        {% dialog icon_name="mail" id="wn-test-dialog" title="Test email" %}
+            <form
+                data-controller="wn-test"
+                data-action="wn-test#send:prevent"
             >
+                {% include "wagtailadmin/shared/field.html" with field=test_form.email %}
 
-            <button
-                type="submit"
-                class="button button-secondary button-longrunning"
-                name="newsletter-action"
-                value="save_campaign"
-                data-controller="w-progress"
-                data-action="w-progress#activate"
-            >
-                {% icon name="spinner" %}
-                Save campaign to {{ backend_name }}
-            </button>
+                <button type="submit" class="button button-primary">Send</button>
+                <button type="button" class="button button-secondary" data-action="w-dialog#hide">Cancel</button>
+            </form>
+        {% enddialog %}
 
-            <button
-                type="button"
-                class="button button-secondary button-longrunning"
-                data-a11y-dialog-show="wn-test-dialog"
-                data-controller="w-progress"
-                data-wn-panel-target="testButton"
-            >
-                {% icon name="spinner" %}
-                Send test email
-            </button>
-
-            {% dialog icon_name="mail" id="wn-test-dialog" title="Test email" %}
-                <form
-                    data-controller="wn-test"
-                    data-action="wn-test#send:prevent"
-                >
-                    {% include "wagtailadmin/shared/field.html" with field=test_form.email %}
-
-                    <button type="submit" class="button button-primary">Send</button>
-                    <button type="button" class="button button-secondary" data-action="w-dialog#hide">Cancel</button>
-                </form>
-            {% enddialog %}
-
-            <button
-                type="submit"
-                class="w-hidden"
-                name="newsletter-action"
-                value="send_test_email"
-                data-wn-panel-target="testSubmit"
-            >
-                Send test email
-            </button>
-        </p>
-    {% endif %}
+        <button
+            type="submit"
+            class="w-hidden"
+            name="newsletter-action"
+            value="send_test_email"
+            data-wn-panel-target="testSubmit"
+        >
+            Send test email
+        </button>
+    </p>
 
     {% if campaign %}
         <p>
