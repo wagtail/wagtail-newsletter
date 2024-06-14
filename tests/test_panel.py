@@ -20,10 +20,28 @@ BACKEND_ERROR_TEXT = "something failed"
 
 
 @pytest.mark.django_db
-def test_panels(admin_client: Client):
-    page = ArticlePage(title="title 0")
-    Site.objects.get().root_page.add_child(instance=page)
-    url = reverse("wagtailadmin_pages:edit", kwargs={"page_id": page.pk})
+@pytest.mark.parametrize(
+    "page_exists",
+    [True, False],
+)
+def test_panels(admin_client: Client, page_exists):
+    home_page = Site.objects.get().root_page
+
+    if page_exists:
+        page = ArticlePage(title="title 0")
+        home_page.add_child(instance=page)
+        url = reverse("wagtailadmin_pages:edit", kwargs={"page_id": page.pk})
+
+    else:
+        url = reverse(
+            "wagtailadmin_pages:add",
+            kwargs={
+                "content_type_app_name": "wagtail_newsletter_test",
+                "content_type_model_name": "articlepage",
+                "parent_page_id": home_page.pk,
+            },
+        )
+
     response = admin_client.get(url)
     panels = {
         tab.heading: [panel.heading for panel in tab.children]

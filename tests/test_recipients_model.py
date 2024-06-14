@@ -64,3 +64,9 @@ def test_segment_validation(
             recipients.full_clean()
 
         assert error.match(r"The segment is not part of the selected audience.")
+
+
+def test_str():
+    NAME = "test"
+    recipients = NewsletterRecipients(name=NAME)
+    assert str(recipients) == NAME
