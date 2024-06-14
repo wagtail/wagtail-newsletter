@@ -6,7 +6,7 @@ window.wagtail.app.register("wn-panel",
       "testSubmit",
     ]
 
-    get testButton() {
+    get testButtonProgress() {
       return this.application.getControllerForElementAndIdentifier(
         this.testButtonTarget, "w-progress"
       );
@@ -14,7 +14,7 @@ window.wagtail.app.register("wn-panel",
 
     test(event) {
       this.testAddressTarget.value = event.detail.address;
-      this.testButton.activate();
+      this.testButtonProgress.activate();
       this.testSubmitTarget.click();
     }
   }

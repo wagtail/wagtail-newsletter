@@ -53,9 +53,10 @@
                     data-controller="wn-test"
                     data-action="wn-test#send:prevent"
                 >
-                    {% formattedfield test_form.email %}
+                    {% include "wagtailadmin/shared/field.html" with field=test_form.email %}
 
                     <button type="submit" class="button button-primary">Send</button>
+                    <button type="button" class="button button-secondary" data-action="w-dialog#hide">Cancel</button>
                 </form>
             {% enddialog %}
 
