@@ -44,7 +44,7 @@ class MemoryCampaignBackend(CampaignBackend):
     def get_campaign(self, campaign_id: str):
         raise NotImplementedError
 
-    def send_test_email(self, *, campaign_id: str, email_address: str):
+    def send_test_email(self, *, campaign_id: str, email: str):
         raise NotImplementedError
 
 

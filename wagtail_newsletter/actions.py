@@ -34,20 +34,20 @@ def save_campaign(request, page: NewsletterPageMixin) -> None:
 
 
 def send_test_email(request, page: NewsletterPageMixin):
-    form = SendTestEmailForm(request.POST)
+    form = SendTestEmailForm(request.POST, prefix="newsletter-test")
     if not form.is_valid():
         for field, errors in form.errors.items():
             for message in errors:
                 messages.error(request, f"{field!r}: {message}")
         return
 
-    email_address = form.cleaned_data["newsletter_test_email_address"]
+    email = form.cleaned_data["email"]
 
     save_campaign(request, page)
 
     backend = campaign_backends.get_backend()
     backend.send_test_email(
         campaign_id=page.newsletter_campaign,
-        email_address=email_address,
+        email=email,
     )
-    messages.success(request, f"Test message sent to {email_address!r}")
+    messages.success(request, f"Test message sent to {email!r}")

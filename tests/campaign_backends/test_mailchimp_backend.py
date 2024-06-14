@@ -26,7 +26,7 @@ HTML = "<h1>Test HTML</h1>"
 CAMPAIGN_ID = "test-campaign-id"
 NEW_CAMPAIGN_ID = "test-new-campaign-id"
 API_ERROR_TEXT = "something failed"
-EMAIL_ADDRESS = "test@example.com"
+EMAIL = "test@example.com"
 
 
 class MockMailchimpCampaignBackend(MailchimpCampaignBackend):
@@ -353,15 +353,15 @@ def test_inject_campaign_settings():
 
 
 def test_send_test_email(backend: MockMailchimpCampaignBackend):
-    backend.send_test_email(campaign_id=CAMPAIGN_ID, email_address=EMAIL_ADDRESS)
+    backend.send_test_email(campaign_id=CAMPAIGN_ID, email=EMAIL)
     assert backend.client.campaigns.send_test_email.mock_calls == [
-        call(CAMPAIGN_ID, {"test_emails": [EMAIL_ADDRESS], "send_type": "html"})
+        call(CAMPAIGN_ID, {"test_emails": [EMAIL], "send_type": "html"})
     ]
 
 
 def test_send_test_email_failure(backend: MockMailchimpCampaignBackend):
     backend.client.campaigns.send_test_email.side_effect = ApiClientError("", 400)
     with pytest.raises(CampaignBackendError) as error:
-        backend.send_test_email(campaign_id=CAMPAIGN_ID, email_address=EMAIL_ADDRESS)
+        backend.send_test_email(campaign_id=CAMPAIGN_ID, email=EMAIL)
 
     assert error.match("Error while sending test email")

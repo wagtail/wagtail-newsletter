@@ -23,10 +23,6 @@ window.wagtail.app.register("wn-panel",
 
 window.wagtail.app.register("wn-test",
   class extends window.StimulusModule.Controller {
-    static targets = [
-      "address",
-    ]
-
     get dialog() {
       return this.application.getControllerForElementAndIdentifier(
         this.element.closest("[data-controller=w-dialog]"), "w-dialog"
@@ -34,7 +30,8 @@ window.wagtail.app.register("wn-test",
     }
 
     send() {
-      this.dispatch("send", { detail: { address: this.addressTarget.value } });
+      const address = this.element.querySelector("input[name=email]").value;
+      this.dispatch("send", { detail: { address } });
       this.dialog.hide();
     }
   }

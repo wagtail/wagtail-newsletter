@@ -45,15 +45,15 @@ def register_admin_viewset():
 @hooks.register("after_create_page")  # type: ignore
 @hooks.register("after_edit_page")  # type: ignore
 def redirect_to_campaign_page(request, page: Page):
-    newsletter_action = request.POST.get("newsletter_action")
+    action = request.POST.get("newsletter-action")
 
-    if newsletter_action is None:  # pragma: no cover
+    if action is None:  # pragma: no cover
         return
 
     page = cast(NewsletterPageMixin, page)
 
-    if newsletter_action == "save_campaign":
+    if action == "save_campaign":
         actions.save_campaign(request, page)
 
-    if newsletter_action == "send_test_email":
+    if action == "send_test_email":
         actions.send_test_email(request, page)

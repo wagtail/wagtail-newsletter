@@ -3,7 +3,6 @@
 <div
     class="wn-panel"
     data-controller="wn-panel"
-    data-wn-panel-user-email-value="{{ user_email }}"
     data-action="wn-test:send@window->wn-panel#test"
 >
     {% if error_message %}
@@ -22,14 +21,14 @@
         <p>
             <input
                 type="hidden"
-                name="newsletter_test_email_address"
+                name="newsletter-test-email"
                 data-wn-panel-target="testAddress"
             >
 
             <button
                 type="submit"
                 class="button button-secondary button-longrunning"
-                name="newsletter_action"
+                name="newsletter-action"
                 value="save_campaign"
                 data-controller="w-progress"
                 data-action="w-progress#activate"
@@ -49,37 +48,12 @@
                 Send test email
             </button>
 
-            {% dialog icon_name="mail" id="wn-test-dialog" title="Send test email" %}
+            {% dialog icon_name="mail" id="wn-test-dialog" title="Test email" %}
                 <form
                     data-controller="wn-test"
                     data-action="wn-test#send:prevent"
                 >
-                    <div class="w-field__wrapper " data-field-wrapper="">
-                        <label class="w-field__label" for="id_text" id="id_text-label">
-                            Email address<span class="w-required-mark">*</span>
-                        </label>
-
-                        <div
-                            class="w-field w-field--char_field w-field--text_input"
-                            data-field=""
-                            data-contentpath="text"
-                        >
-                            <div class="w-field__help" id="id_text-helptext" data-field-help="">
-                                <div class="help">Send a test email to this address</div>
-                            </div>
-
-                            <div class="w-field__input" data-field-input="">
-                                <input
-                                    type="email"
-                                    aria-describedby="id_text-helptext"
-                                    required
-                                    id="id_text"
-                                    data-wn-test-target="address"
-                                    value="{{ user_email }}"
-                                >
-                            </div>
-                        </div>
-                    </div>
+                    {% formattedfield test_form.email %}
 
                     <button type="submit" class="button button-primary">Send</button>
                 </form>
@@ -88,7 +62,7 @@
             <button
                 type="submit"
                 class="w-hidden"
-                name="newsletter_action"
+                name="newsletter-action"
                 value="send_test_email"
                 data-wn-panel-target="testSubmit"
             >

@@ -2,4 +2,7 @@ from django import forms
 
 
 class SendTestEmailForm(forms.Form):
-    newsletter_test_email_address = forms.EmailField()
+    email = forms.EmailField(
+        label="Email address",
+        help_text="Send a test email to this address",
+    )
