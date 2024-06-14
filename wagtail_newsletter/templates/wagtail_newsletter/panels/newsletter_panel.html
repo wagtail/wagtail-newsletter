@@ -3,7 +3,7 @@
 <div
     class="wn-panel"
     data-controller="wn-panel"
-    data-action="wn-test:send@window->wn-panel#test"
+    data-action="wn-test:submit@window->wn-panel#test"
 >
     {% if error_message %}
         <div class="help-block help-critical">
@@ -50,7 +50,7 @@
         {% dialog icon_name="mail" id="wn-test-dialog" title="Test email" %}
             <form
                 data-controller="wn-test"
-                data-action="wn-test#send:prevent"
+                data-action="wn-test#submit:prevent"
             >
                 {% include "wagtailadmin/shared/field.html" with field=test_form.email %}
 

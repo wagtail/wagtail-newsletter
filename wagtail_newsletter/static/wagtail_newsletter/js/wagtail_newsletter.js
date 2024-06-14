@@ -29,9 +29,9 @@ window.wagtail.app.register("wn-test",
       );
     }
 
-    send() {
+    submit() {
       const address = this.element.querySelector("input[name=email]").value;
-      this.dispatch("send", { detail: { address } });
+      this.dispatch("submit", { detail: { address } });
       this.dialog.hide();
     }
   }
