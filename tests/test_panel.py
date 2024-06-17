@@ -1,5 +1,6 @@
 import re
 
+from datetime import datetime, timezone
 from unittest.mock import Mock
 
 import pytest
@@ -19,7 +20,9 @@ CAMPAIGN_URL = "http://campaign.example.com"
 BACKEND_ERROR_TEXT = "something failed"
 
 
-@pytest.mark.django_db
+pytestmark = pytest.mark.django_db
+
+
 @pytest.mark.parametrize(
     "page_exists",
     [True, False],
@@ -50,7 +53,6 @@ def test_panels(admin_client: Client, page_exists):
     assert panels["Newsletter"] == ["Recipients", "Subject", "Campaign"]
 
 
-@pytest.mark.django_db
 def test_link_to_backend(admin_client: Client, memory_backend: MemoryCampaignBackend):
     memory_backend.get_campaign = Mock(return_value=Mock(url=CAMPAIGN_URL))
     page = ArticlePage(title="Page title", newsletter_campaign="test-campaign-id")
@@ -60,7 +62,6 @@ def test_link_to_backend(admin_client: Client, memory_backend: MemoryCampaignBac
     assert f'href="{CAMPAIGN_URL}"' in response.content.decode()
 
 
-@pytest.mark.django_db
 def test_warn_improperly_configured(
     admin_client: Client, memory_backend: MemoryCampaignBackend
 ):
@@ -75,7 +76,6 @@ def test_warn_improperly_configured(
     )
 
 
-@pytest.mark.django_db
 def test_warn_deleted_campaign(
     admin_client: Client, memory_backend: MemoryCampaignBackend
 ):
@@ -89,7 +89,6 @@ def test_warn_deleted_campaign(
     )
 
 
-@pytest.mark.django_db
 def test_warn_backend_error(
     admin_client: Client, memory_backend: MemoryCampaignBackend
 ):
@@ -101,3 +100,24 @@ def test_warn_backend_error(
     url = reverse("wagtailadmin_pages:edit", kwargs={"page_id": page.pk})
     response = admin_client.get(url)
     assert BACKEND_ERROR_TEXT in response.content.decode()
+
+
+def test_campaign_report(admin_client: Client, memory_backend: MemoryCampaignBackend):
+    campaign = Mock(status="sent")
+    memory_backend.get_campaign = Mock(return_value=campaign)
+    campaign.get_report.return_value = {
+        "bounces": 6,
+        "clicks": 3,
+        "emails_sent": 13,
+        "opens": 5,
+        "send_time": datetime(2024, 6, 17, 12, 51, 46, tzinfo=timezone.utc),
+    }
+    page = ArticlePage(title="Page title", newsletter_campaign="test-campaign-id")
+    Site.objects.get().root_page.add_child(instance=page)
+    url = reverse("wagtailadmin_pages:edit", kwargs={"page_id": page.pk})
+    html = admin_client.get(url).content.decode()
+    assert re.search(r"<b>Status:</b>\s*sent", html)
+    assert re.search(r"<b>Send time:</b>\s*June 17, 2024, 12:51 p\.m\.", html)
+    assert re.search(r"<b>Emails sent:</b>\s*13 \(6 bounces\)", html)
+    assert re.search(r"<b>Opens:</b>\s*5", html)
+    assert re.search(r"<b>Clicks:</b>\s*3", html)

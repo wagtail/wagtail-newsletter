@@ -2,6 +2,7 @@ import logging
 
 from copy import copy
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, NoReturn, Optional, cast
 
 from django.conf import settings
@@ -45,9 +46,29 @@ class MailchimpCampaign(Campaign):
         else:
             return f"{base_url}/campaigns/edit?id={self.web_id}"
 
+    def get_report(self) -> "dict[str, Any]":
+        try:
+            data = self.backend.client.reports.get_campaign_report(self.id)
+
+        except ApiClientError as error:
+            _log_and_raise(
+                error, "Error while fetching campaign report", campaign_id=self.id
+            )
+
+        report = {
+            "emails_sent": data["emails_sent"],
+            "bounces": sum(data["bounces"].values()),
+            "opens": data["opens"]["unique_opens"],
+            "clicks": data["clicks"]["unique_clicks"],
+        }
+        if data["send_time"]:
+            report["send_time"] = datetime.fromisoformat(data["send_time"])
+        return report
+
 
 class MailchimpCampaignBackend(CampaignBackend):
     name = "Mailchimp"
+    campaign_class = MailchimpCampaign
 
     @cached_property
     def client(self):
@@ -185,7 +206,7 @@ class MailchimpCampaignBackend(CampaignBackend):
                 error, "Error while fetching campaign", campaign_id=campaign_id
             )
 
-        return MailchimpCampaign(
+        return self.campaign_class(
             backend=self,
             id=campaign_id,
             web_id=data["web_id"],
@@ -205,6 +226,15 @@ class MailchimpCampaignBackend(CampaignBackend):
         except ApiClientError as error:
             _log_and_raise(
                 error, "Error while sending test email", campaign_id=campaign_id
+            )
+
+    def send_campaign(self, campaign_id: str) -> None:
+        try:
+            self.client.campaigns.send(campaign_id)
+
+        except ApiClientError as error:
+            _log_and_raise(
+                error, "Error while sending campaign", campaign_id=campaign_id
             )
 
 

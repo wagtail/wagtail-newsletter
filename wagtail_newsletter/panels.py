@@ -56,6 +56,11 @@ class NewsletterPanel(Panel):
             context["test_form"] = SendTestEmailForm(
                 initial={"email": self.request.user.email},
             )
+
+            if campaign is not None and campaign.sent:
+                context["sent"] = True
+                context["report"] = campaign.get_report()
+
             return context
 
         class Media:

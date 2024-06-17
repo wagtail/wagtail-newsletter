@@ -33,7 +33,7 @@ def save_campaign(request, page: NewsletterPageMixin) -> None:
     )
 
 
-def send_test_email(request, page: NewsletterPageMixin):
+def send_test_email(request, page: NewsletterPageMixin) -> None:
     form = SendTestEmailForm(request.POST, prefix="newsletter-test")
     if not form.is_valid():
         for field, errors in form.errors.items():
@@ -51,3 +51,11 @@ def send_test_email(request, page: NewsletterPageMixin):
         email=email,
     )
     messages.success(request, f"Test message sent to {email!r}")
+
+
+def send_campaign(request, page: NewsletterPageMixin) -> None:
+    save_campaign(request, page)
+
+    backend = campaign_backends.get_backend()
+    backend.send_campaign(page.newsletter_campaign)
+    messages.success(request, "Newsletter campaign has been sent")
