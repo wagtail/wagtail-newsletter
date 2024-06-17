@@ -4,6 +4,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.html import format_html
 from wagtail.admin.panels import Panel
 
+from wagtail_newsletter.forms import SendTestEmailForm
+
 from . import campaign_backends, models
 
 
@@ -51,4 +53,12 @@ class NewsletterPanel(Panel):
 
             context["backend_name"] = backend.name
             context["campaign"] = campaign
+            context["test_form"] = SendTestEmailForm(
+                initial={"email": self.request.user.email},
+            )
             return context
+
+        class Media:
+            js = [
+                "wagtail_newsletter/js/wagtail_newsletter.js",
+            ]

@@ -192,6 +192,21 @@ class MailchimpCampaignBackend(CampaignBackend):
             status=data["status"],
         )
 
+    def send_test_email(self, *, campaign_id: str, email: str) -> None:
+        try:
+            self.client.campaigns.send_test_email(
+                campaign_id,
+                {
+                    "test_emails": [email],
+                    "send_type": "html",
+                },
+            )
+
+        except ApiClientError as error:
+            _log_and_raise(
+                error, "Error while sending test email", campaign_id=campaign_id
+            )
+
 
 def _log_and_raise(error: ApiClientError, message: str, **kwargs) -> NoReturn:
     kwargs["status_code"] = error.status_code

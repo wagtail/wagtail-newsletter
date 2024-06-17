@@ -2,6 +2,8 @@ from typing import cast
 
 from wagtail.admin import messages
 
+from wagtail_newsletter.forms import SendTestEmailForm
+
 from . import campaign_backends
 from .models import NewsletterPageMixin
 
@@ -29,3 +31,23 @@ def save_campaign(request, page: NewsletterPageMixin) -> None:
     messages.success(
         request, f"Newsletter campaign {subject!r} has been saved to {backend.name}"
     )
+
+
+def send_test_email(request, page: NewsletterPageMixin):
+    form = SendTestEmailForm(request.POST, prefix="newsletter-test")
+    if not form.is_valid():
+        for field, errors in form.errors.items():
+            for message in errors:
+                messages.error(request, f"{field!r}: {message}")
+        return
+
+    email = form.cleaned_data["email"]
+
+    save_campaign(request, page)
+
+    backend = campaign_backends.get_backend()
+    backend.send_test_email(
+        campaign_id=page.newsletter_campaign,
+        email=email,
+    )
+    messages.success(request, f"Test message sent to {email!r}")

@@ -46,6 +46,9 @@ class CampaignBackend(ABC):
     @abstractmethod
     def get_campaign(self, campaign_id: str) -> Optional[Campaign]: ...
 
+    @abstractmethod
+    def send_test_email(self, *, campaign_id: str, email: str) -> None: ...
+
 
 def get_backend() -> CampaignBackend:
     backend_class = import_string(
