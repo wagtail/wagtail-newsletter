@@ -192,7 +192,7 @@ class MailchimpCampaignBackend(CampaignBackend):
             status=data["status"],
         )
 
-    def send_test_email(self, *, campaign_id: str, email: str):
+    def send_test_email(self, *, campaign_id: str, email: str) -> None:
         try:
             self.client.campaigns.send_test_email(
                 campaign_id,
