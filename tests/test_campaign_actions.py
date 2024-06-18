@@ -150,7 +150,7 @@ def test_send_campaign(
         f"Newsletter campaign &#x27;{page.title}&#x27; has been saved to Testing"
         in html
     )
-    assert "Newsletter campaign has been sent" in html
+    assert "Newsletter campaign is now sending" in html
 
     assert memory_backend.save_campaign.mock_calls == [
         call(campaign_id="", recipients=None, subject=page.title, html=ANY)

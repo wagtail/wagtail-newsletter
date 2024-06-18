@@ -58,4 +58,4 @@ def send_campaign(request, page: NewsletterPageMixin) -> None:
 
     backend = campaign_backends.get_backend()
     backend.send_campaign(page.newsletter_campaign)
-    messages.success(request, "Newsletter campaign has been sent")
+    messages.success(request, "Newsletter campaign is now sending")
