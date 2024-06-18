@@ -59,7 +59,15 @@ class NewsletterPanel(Panel):
 
             if campaign is not None and campaign.sent:
                 context["sent"] = True
-                context["report"] = campaign.get_report()
+                if self.instance.has_newsletter_permission(
+                    self.request.user, "get_report"
+                ):
+                    context["report"] = campaign.get_report()
+
+            context["has_action_permission"] = {}
+            for action in ["save_campaign", "send_test_email", "send_campaign"]:
+                if self.instance.has_newsletter_permission(self.request.user, action):
+                    context["has_action_permission"][action] = True
 
             return context
 

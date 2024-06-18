@@ -23,36 +23,40 @@
                 {{ campaign.status }}
             </p>
 
-            {% if report.send_time %}
+            {% if report %}
+                {% if report.send_time %}
+                    <p>
+                        <b>Send time:</b>
+                        {{ report.send_time }}
+                        ({{ report.send_time|timesince }} ago).
+                    </p>
+                {% endif %}
+
                 <p>
-                    <b>Send time:</b>
-                    {{ report.send_time }}
-                    ({{ report.send_time|timesince }} ago).
+                    <b>Emails sent:</b>
+                    {{ report.emails_sent }} ({{ report.bounces }} bounces)
+                </p>
+
+                <p>
+                    <b>Opens:</b>
+                    {{ report.opens }}
+                </p>
+
+                <p>
+                    <b>Clicks:</b>
+                    {{ report.clicks }}
                 </p>
             {% endif %}
-
-            <p>
-                <b>Emails sent:</b>
-                {{ report.emails_sent }} ({{ report.bounces }} bounces)
-            </p>
-
-            <p>
-                <b>Opens:</b>
-                {{ report.opens }}
-            </p>
-
-            <p>
-                <b>Clicks:</b>
-                {{ report.clicks }}
-            </p>
         {% endblock %}
 
     {% else %}
 
-        <div class="help-block help-info">
-            {% icon name="help" %}
-            These actions will save a new page revision.
-        </div>
+        {% if has_action_permission %}
+            <div class="help-block help-info">
+                {% icon name="help" %}
+                These actions will save a new page revision.
+            </div>
+        {% endif %}
 
         <p>
             <input
@@ -61,39 +65,45 @@
                 data-wn-panel-target="testAddress"
             >
 
-            <button
-                type="submit"
-                class="button button-secondary button-longrunning"
-                name="newsletter-action"
-                value="save_campaign"
-                data-controller="w-progress"
-                data-action="w-progress#activate"
-            >
-                {% icon name="spinner" %}
-                Save campaign to {{ backend_name }}
-            </button>
+            {% if has_action_permission.save_campaign %}
+                <button
+                    type="submit"
+                    class="button button-secondary button-longrunning"
+                    name="newsletter-action"
+                    value="save_campaign"
+                    data-controller="w-progress"
+                    data-action="w-progress#activate"
+                >
+                    {% icon name="spinner" %}
+                    Save campaign to {{ backend_name }}
+                </button>
+            {% endif %}
 
-            <button
-                type="button"
-                class="button button-secondary button-longrunning"
-                data-a11y-dialog-show="wn-test-dialog"
-                data-controller="w-progress"
-                data-wn-panel-target="testButton"
-            >
-                {% icon name="spinner" %}
-                Send test email
-            </button>
+            {% if has_action_permission.send_test_email %}
+                <button
+                    type="button"
+                    class="button button-secondary button-longrunning"
+                    data-a11y-dialog-show="wn-test-dialog"
+                    data-controller="w-progress"
+                    data-wn-panel-target="testButton"
+                >
+                    {% icon name="spinner" %}
+                    Send test email
+                </button>
+            {% endif %}
 
-            <button
-                type="button"
-                class="button button-primary button-longrunning"
-                data-controller="w-progress"
-                data-wn-panel-target="sendButton"
-                data-action="wn-panel#clickSend"
-            >
-                {% icon name="spinner" %}
-                Send campaign
-            </button>
+            {% if has_action_permission.send_campaign %}
+                <button
+                    type="button"
+                    class="button button-primary button-longrunning"
+                    data-controller="w-progress"
+                    data-wn-panel-target="sendButton"
+                    data-action="wn-panel#clickSend"
+                >
+                    {% icon name="spinner" %}
+                    Send campaign
+                </button>
+            {% endif %}
 
             {% dialog icon_name="mail" id="wn-test-dialog" title="Send test email" %}
                 <form
