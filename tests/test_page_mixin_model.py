@@ -2,10 +2,11 @@ from unittest.mock import Mock
 
 import pytest
 
-from django.test import RequestFactory
-from wagtail.models import Site
+from django.test import Client, RequestFactory
+from django.urls import reverse
+from wagtail.models import Page, Site
 
-from wagtail_newsletter.test.models import ArticlePage, CustomRecipients
+from wagtail_newsletter.test.models import ArticlePage, CustomRecipients, SimplePage
 
 
 @pytest.mark.django_db
@@ -61,6 +62,43 @@ def test_persistent_fields(monkeypatch: pytest.MonkeyPatch):
     assert {rev.title for rev in revs} == {"title 1", "title 2"}
     assert {rev.newsletter_recipients for rev in revs} == {recipients_1, recipients_2}
     assert {rev.newsletter_subject for rev in revs} == {"subject 1", "subject 2"}
+
+
+@pytest.mark.django_db
+def test_copy_clears_campaign(admin_client: Client):
+    article = ArticlePage(title="Article", newsletter_campaign="test campaign")
+    home: Page = Site.objects.get().root_page
+    home.add_child(instance=article)
+    response = admin_client.post(
+        reverse("wagtailadmin_pages:copy", kwargs={"page_id": article.pk}),
+        {
+            "new_title": "Copy of Article",
+            "new_slug": "copy-of-article",
+            "new_parent_page": home.pk,
+        },
+    )
+    assert response.status_code == 302
+    new_article: ArticlePage = (  # type: ignore
+        home.get_children().filter(slug="copy-of-article").get().specific  # type: ignore
+    )
+    assert new_article.newsletter_campaign == ""
+
+
+@pytest.mark.django_db
+def test_copy_regular_page_still_works(admin_client: Client):
+    page = SimplePage(title="Page")
+    home: Page = Site.objects.get().root_page
+    home.add_child(instance=page)
+    response = admin_client.post(
+        reverse("wagtailadmin_pages:copy", kwargs={"page_id": page.pk}),
+        {
+            "new_title": "Copy of Page",
+            "new_slug": "copy-of-page",
+            "new_parent_page": home.pk,
+        },
+    )
+    assert response.status_code == 302
+    assert home.get_children().filter(slug="copy-of-page").exists()
 
 
 def test_newsletter_html():
