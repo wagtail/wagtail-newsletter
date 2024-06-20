@@ -1,5 +1,7 @@
 import logging
 
+from datetime import datetime, timezone
+from typing import Any
 from unittest.mock import ANY, Mock, call
 
 import pytest
@@ -19,11 +21,14 @@ from wagtail_newsletter.campaign_backends.mailchimp import (
 from wagtail_newsletter.test.models import CustomRecipients
 
 
+WEB_SERVER = "mock-server"
+WEB_BASE_URL = f"https://{WEB_SERVER}.admin.mailchimp.com"
 LIST_ID = "test-audience-id"
 SEGMENT_ID = 12345
 SUBJECT = "Test Subject"
 HTML = "<h1>Test HTML</h1>"
 CAMPAIGN_ID = "test-campaign-id"
+CAMPAIGN_WEB_ID = "test-web-id"
 NEW_CAMPAIGN_ID = "test-new-campaign-id"
 API_ERROR_TEXT = "something failed"
 EMAIL = "test@example.com"
@@ -271,20 +276,20 @@ def test_update_campaign_handle_update_exception(backend: MockMailchimpCampaignB
     "data,sent,url",
     [
         (
-            {"web_id": "test-web-id", "status": "save"},
+            {"web_id": CAMPAIGN_WEB_ID, "status": "save"},
             False,
-            "https://mock-server.admin.mailchimp.com/campaigns/edit?id=test-web-id",
+            f"{WEB_BASE_URL}/campaigns/edit?id={CAMPAIGN_WEB_ID}",
         ),
         (
-            {"web_id": "test-web-id", "status": "sent"},
+            {"web_id": CAMPAIGN_WEB_ID, "status": "sent"},
             True,
-            "https://mock-server.admin.mailchimp.com/reports/summary?id=test-web-id",
+            f"{WEB_BASE_URL}/reports/summary?id={CAMPAIGN_WEB_ID}",
         ),
     ],
 )
 def test_get_campaign(backend: MockMailchimpCampaignBackend, data, sent, url):
     backend.client.campaigns.get.return_value = data
-    backend.client.api_client.server = "mock-server"
+    backend.client.api_client.server = WEB_SERVER
     campaign = backend.get_campaign(CAMPAIGN_ID)
     assert campaign is not None
     assert backend.client.campaigns.get.mock_calls == [call(CAMPAIGN_ID)]
@@ -303,6 +308,51 @@ def test_get_campaign_handle_exception(backend: MockMailchimpCampaignBackend):
         backend.get_campaign(CAMPAIGN_ID)
 
     assert error.match("Error while fetching campaign")
+
+
+@pytest.mark.parametrize("send_completed", [True, False])
+def test_campaign_report(backend: MockMailchimpCampaignBackend, send_completed: bool):
+    backend.client.campaigns.get.return_value = {
+        "web_id": CAMPAIGN_WEB_ID,
+        "status": "sent",
+    }
+    backend.client.reports.get_campaign_report.return_value = {
+        "emails_sent": 13,
+        "bounces": {"hard_bounces": 1, "soft_bounces": 2, "syntax_errors": 3},
+        "opens": {"unique_opens": 5},
+        "clicks": {"unique_clicks": 3},
+        "send_time": None,
+    }
+    expected: dict[str, Any] = {
+        "bounces": 6,
+        "clicks": 3,
+        "emails_sent": 13,
+        "opens": 5,
+    }
+    if send_completed:
+        backend.client.reports.get_campaign_report.return_value["send_time"] = (
+            "2024-06-17T12:51:46+00:00"
+        )
+        expected["send_time"] = datetime(2024, 6, 17, 12, 51, 46, tzinfo=timezone.utc)
+
+    campaign = backend.get_campaign(CAMPAIGN_ID)
+    assert campaign is not None
+    report = campaign.get_report()
+    assert report == expected
+
+
+def test_campaign_report_handle_exception(backend: MockMailchimpCampaignBackend):
+    backend.client.campaigns.get.return_value = {
+        "web_id": CAMPAIGN_WEB_ID,
+        "status": "sent",
+    }
+    backend.client.reports.get_campaign_report.side_effect = ApiClientError("", 400)
+    campaign = backend.get_campaign(CAMPAIGN_ID)
+    assert campaign is not None
+    with pytest.raises(CampaignBackendError) as error:
+        campaign.get_report()
+
+    assert error.match("Error while fetching campaign report")
 
 
 def test_log_and_raise(caplog: pytest.LogCaptureFixture):
@@ -365,3 +415,18 @@ def test_send_test_email_failure(backend: MockMailchimpCampaignBackend):
         backend.send_test_email(campaign_id=CAMPAIGN_ID, email=EMAIL)
 
     assert error.match("Error while sending test email")
+
+
+def test_send_campaign(backend: MockMailchimpCampaignBackend):
+    backend.send_campaign(CAMPAIGN_ID)
+    assert backend.client.campaigns.send.mock_calls == [call(CAMPAIGN_ID)]
+
+
+def test_send_campaign_failure(backend: MockMailchimpCampaignBackend):
+    backend.send_campaign(CAMPAIGN_ID)
+    assert backend.client.campaigns.send.mock_calls == [call(CAMPAIGN_ID)]
+    backend.client.campaigns.send.side_effect = ApiClientError("", 400)
+    with pytest.raises(CampaignBackendError) as error:
+        backend.send_campaign(campaign_id=CAMPAIGN_ID)
+
+    assert error.match("Error while sending campaign")

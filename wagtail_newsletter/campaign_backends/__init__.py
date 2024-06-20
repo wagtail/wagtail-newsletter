@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Optional
 
 from django.conf import settings
 from django.utils.module_loading import import_string
@@ -20,6 +20,9 @@ class Campaign(ABC):
     @property
     @abstractmethod
     def url(self) -> str: ...
+
+    @abstractmethod
+    def get_report(self) -> "dict[str, Any]": ...
 
 
 class CampaignBackend(ABC):
@@ -48,6 +51,9 @@ class CampaignBackend(ABC):
 
     @abstractmethod
     def send_test_email(self, *, campaign_id: str, email: str) -> None: ...
+
+    @abstractmethod
+    def send_campaign(self, campaign_id: str) -> None: ...
 
 
 def get_backend() -> CampaignBackend:

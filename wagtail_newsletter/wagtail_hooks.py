@@ -5,7 +5,13 @@ from django.views.i18n import JavaScriptCatalog
 from wagtail import hooks
 from wagtail.models import Page
 
-from . import DEFAULT_RECIPIENTS_MODEL, actions, get_recipients_model_string, viewsets
+from . import (
+    DEFAULT_RECIPIENTS_MODEL,
+    actions,
+    get_recipients_model_string,
+    views,
+    viewsets,
+)
 from .models import NewsletterPageMixin
 
 
@@ -17,6 +23,7 @@ def register_admin_urls():
             JavaScriptCatalog.as_view(packages=["wagtail_newsletter"]),
             name="javascript_catalog",
         ),
+        path("recipients/", views.recipients, name="recipients"),
     ]
 
     return [
@@ -57,3 +64,6 @@ def redirect_to_campaign_page(request, page: Page):
 
     if action == "send_test_email":
         actions.send_test_email(request, page)
+
+    if action == "send_campaign":
+        actions.send_campaign(request, page)

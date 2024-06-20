@@ -1,12 +1,19 @@
+import json
+
 import pytest
 
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 
 from wagtail_newsletter.audiences import Audience, AudienceSegment
 from wagtail_newsletter.models import NewsletterRecipients
 from wagtail_newsletter.test.models import ArticlePage, CustomRecipients
 
 from .conftest import MemoryCampaignBackend
+
+
+NAME = "test"
+MEMBER_COUNT = 13
 
 
 def test_custom_recipients_model_foreign_key():
@@ -67,6 +74,16 @@ def test_segment_validation(
 
 
 def test_str():
-    NAME = "test"
     recipients = NewsletterRecipients(name=NAME)
     assert str(recipients) == NAME
+
+
+@pytest.mark.django_db
+def test_recipients_api(admin_client, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(CustomRecipients, "member_count", MEMBER_COUNT)
+    recipients = CustomRecipients.objects.create(name=NAME)
+    url = reverse("wagtail_newsletter:recipients")
+    response = admin_client.get(f"{url}?pk={recipients.pk}")
+    assert response.status_code == 200
+    body = json.loads(response.content)
+    assert body == {"name": NAME, "member_count": MEMBER_COUNT}

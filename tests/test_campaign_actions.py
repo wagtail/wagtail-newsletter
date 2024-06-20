@@ -127,3 +127,32 @@ def test_send_test_email_invalid_email(
 
     assert memory_backend.save_campaign.mock_calls == []
     assert memory_backend.send_test_email.mock_calls == []
+
+
+def test_send_campaign(
+    page: ArticlePage, admin_client: Client, memory_backend: MemoryCampaignBackend
+):
+    memory_backend.save_campaign = Mock(return_value=CAMPAIGN_ID)
+    memory_backend.get_campaign = Mock(return_value=Mock(url=CAMPAIGN_URL))
+    memory_backend.send_campaign = Mock()
+
+    url = reverse("wagtailadmin_pages:edit", kwargs={"page_id": page.pk})
+    data = {
+        "title": page.title,
+        "slug": page.slug,
+        "newsletter-action": "send_campaign",
+    }
+    response = admin_client.post(url, data, follow=True)
+
+    html = response.content.decode()
+    assert f"Page &#x27;{page.title}&#x27; has been updated" in html
+    assert (
+        f"Newsletter campaign &#x27;{page.title}&#x27; has been saved to Testing"
+        in html
+    )
+    assert "Newsletter campaign is now sending" in html
+
+    assert memory_backend.save_campaign.mock_calls == [
+        call(campaign_id="", recipients=None, subject=page.title, html=ANY)
+    ]
+    assert memory_backend.send_campaign.mock_calls == [call(CAMPAIGN_ID)]
