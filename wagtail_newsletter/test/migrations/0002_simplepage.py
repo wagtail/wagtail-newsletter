@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     dependencies = [
         ("wagtail_newsletter_test", "0001_initial"),
-        ("wagtailcore", "0091_remove_revision_submitted_for_moderation"),
+        ("wagtailcore", "0089_log_entry_data_json_null_to_object"),
     ]
 
     operations = [
