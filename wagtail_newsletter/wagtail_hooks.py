@@ -67,3 +67,10 @@ def redirect_to_campaign_page(request, page: Page):
 
     if action == "send_campaign":
         actions.send_campaign(request, page)
+
+
+@hooks.register("after_copy_page")  # type: ignore
+def clear_campaign_after_copy(request, page, new_page):
+    if isinstance(new_page, NewsletterPageMixin) and new_page.newsletter_campaign:
+        new_page.newsletter_campaign = ""
+        new_page.save(update_fields=["newsletter_campaign"])

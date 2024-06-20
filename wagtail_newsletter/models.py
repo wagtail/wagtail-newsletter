@@ -80,6 +80,7 @@ class NewsletterPageMixin(Page):
         blank=True,
         help_text="Subject for the newsletter. Defaults to page title if blank.",
     )
+    # Campaign ID in the backend system. We store it as an opaque string.
     newsletter_campaign = models.CharField(max_length=1000, blank=True)
 
     class Meta:  # type: ignore
