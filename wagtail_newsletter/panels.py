@@ -1,6 +1,7 @@
 import logging
 
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.functional import cached_property
 from django.utils.html import format_html
 from wagtail.admin.panels import Panel
 
@@ -17,6 +18,24 @@ class NewsletterPanel(Panel):
         template_name = "wagtail_newsletter/panels/newsletter_panel.html"
 
         instance: "models.NewsletterPageMixin"
+
+        class Media:
+            js = [
+                "wagtail_newsletter/js/wagtail_newsletter.js",
+            ]
+
+        @cached_property
+        def permissions(self):
+            return frozenset(
+                action
+                for action in [
+                    "save_campaign",
+                    "send_test_email",
+                    "send_campaign",
+                    "get_report",
+                ]
+                if self.instance.has_newsletter_permission(self.request.user, action)
+            )
 
         def get_context_data(self, parent_context=None):
             context = super().get_context_data(parent_context) or {}
@@ -59,19 +78,14 @@ class NewsletterPanel(Panel):
 
             if campaign is not None and campaign.sent:
                 context["sent"] = True
-                if self.instance.has_newsletter_permission(
-                    self.request.user, "get_report"
-                ):
+                if "get_report" in self.permissions:
                     context["report"] = campaign.get_report()
 
-            context["has_action_permission"] = {}
-            for action in ["save_campaign", "send_test_email", "send_campaign"]:
-                if self.instance.has_newsletter_permission(self.request.user, action):
-                    context["has_action_permission"][action] = True
+            context["has_action_permission"] = {
+                permission: True for permission in self.permissions
+            }
 
             return context
 
-        class Media:
-            js = [
-                "wagtail_newsletter/js/wagtail_newsletter.js",
-            ]
+        def is_shown(self):  # type: ignore
+            return bool(self.permissions)
