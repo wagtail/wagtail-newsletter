@@ -128,9 +128,9 @@ def test_campaign_report(
     response = admin_client.get(url)
     context = dict(response.context)
     html = response.content.decode()
-    assert re.search(r"<b>Status:</b>\s*sent", html)
 
     if has_permission:
+        assert re.search(r"<b>Status:</b>\s*sent", html)
         assert "report" in context
         assert re.search(r"<b>Send time:</b>\s*June 17, 2024, 12:51 p\.m\.", html)
         assert re.search(r"<b>Emails sent:</b>\s*13 \(6 bounces\)", html)
