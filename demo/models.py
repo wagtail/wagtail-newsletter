@@ -4,6 +4,7 @@ from django.db import models
 from wagtail.admin.panels import FieldPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page
+from wagtail.permission_policies.base import ModelPermissionPolicy
 
 from wagtail_newsletter.models import NewsletterPageMixin, NewsletterRecipientsBase
 
@@ -23,6 +24,22 @@ class ArticlePage(NewsletterPageMixin, Page):  # type: ignore
     ]
 
     newsletter_template = "demo/article_page_newsletter.html"
+
+    class Meta:  # type: ignore
+        permissions = [
+            ("sendnewsletter_articlepage", "Can send newsletter"),
+        ]
+
+    def has_newsletter_permission(self, user, action):
+        permission_policy = ModelPermissionPolicy(type(self))
+        return permission_policy.user_has_permission(user, "sendnewsletter")
+
+    @classmethod
+    def get_newsletter_panels(cls):
+        panels = [panel.clone() for panel in super().get_newsletter_panels()]
+        for panel in panels:
+            panel.permission = "demo.sendnewsletter_articlepage"
+        return panels
 
 
 class CustomRecipients(NewsletterRecipientsBase):
