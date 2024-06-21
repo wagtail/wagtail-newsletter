@@ -8,6 +8,7 @@ from django.utils.safestring import SafeString
 from django.utils.translation import gettext_lazy as _
 from wagtail.admin.panels import FieldPanel, ObjectList, TabbedInterface
 from wagtail.models import Page
+from wagtail.models.audit_log import BaseLogEntry
 from wagtail.permissions import ModelPermissionPolicy
 
 from . import audiences, get_recipients_model_string, panels
@@ -167,3 +168,25 @@ class NewsletterPageMixin(Page):
             return HttpResponse(self.get_newsletter_html().encode())
 
         return super().serve_preview(request, mode_name)
+
+
+class NewsletterLogEntry(BaseLogEntry):
+    page = models.ForeignKey(
+        "wagtailcore.Page",
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
+        related_name="+",
+    )
+
+    class Meta:  # type: ignore
+        ordering = ["-timestamp", "-id"]
+        verbose_name = _("newsletter log entry")
+        verbose_name_plural = _("newsletter log entries")
+
+    def __str__(self):
+        return "NewsletterLogEntry %d: '%s' on '%s' with id %s" % (
+            self.pk,
+            self.action,
+            self.object_verbose_name(),
+            self.page_id,  # type: ignore
+        )

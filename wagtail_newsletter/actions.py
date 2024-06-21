@@ -1,24 +1,25 @@
 from typing import cast
 
 from wagtail.admin import messages
-
-from wagtail_newsletter.forms import SendTestEmailForm
+from wagtail.log_actions import get_active_log_context
 
 from . import campaign_backends
-from .models import NewsletterPageMixin
+from .forms import SendTestEmailForm
+from .models import NewsletterLogEntry, NewsletterPageMixin
 
 
 def save_campaign(request, page: NewsletterPageMixin) -> None:
     backend = campaign_backends.get_backend()
-    revision = cast(NewsletterPageMixin, page.latest_revision.as_object())
-    subject = revision.newsletter_subject or revision.title
+    revision = page.latest_revision
+    version = cast(NewsletterPageMixin, revision.as_object())
+    subject = version.newsletter_subject or version.title
 
     try:
         campaign_id = backend.save_campaign(
             campaign_id=page.newsletter_campaign,
-            recipients=revision.newsletter_recipients,
+            recipients=version.newsletter_recipients,
             subject=subject,
-            html=revision.get_newsletter_html(),
+            html=version.get_newsletter_html(),
         )
 
     except campaign_backends.CampaignBackendError:
@@ -27,6 +28,14 @@ def save_campaign(request, page: NewsletterPageMixin) -> None:
 
     page.newsletter_campaign = campaign_id
     page.save(update_fields=["newsletter_campaign"])
+
+    _log(
+        page,
+        "wagtail_newsletter.save_campaign",
+        revision=revision,
+        timestamp=revision.created_at,
+        content_changed=True,
+    )
 
     messages.success(
         request, f"Newsletter campaign {subject!r} has been saved to {backend.name}"
@@ -50,6 +59,9 @@ def send_test_email(request, page: NewsletterPageMixin) -> None:
         campaign_id=page.newsletter_campaign,
         email=email,
     )
+
+    _log(page, "wagtail_newsletter.send_test_email", data={"email": email})
+
     messages.success(request, f"Test message sent to {email!r}")
 
 
@@ -58,4 +70,15 @@ def send_campaign(request, page: NewsletterPageMixin) -> None:
 
     backend = campaign_backends.get_backend()
     backend.send_campaign(page.newsletter_campaign)
+
+    _log(page, "wagtail_newsletter.send_campaign")
+
     messages.success(request, "Newsletter campaign is now sending")
+
+
+def _log(instance, action, **kwargs):
+    user = get_active_log_context().user
+    uuid = get_active_log_context().uuid
+    return NewsletterLogEntry.objects.log_action(  # type: ignore
+        instance, action, page=instance, user=user, uuid=uuid, **kwargs
+    )

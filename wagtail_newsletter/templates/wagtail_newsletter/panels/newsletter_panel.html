@@ -174,4 +174,13 @@
             </a>
         </p>
     {% endif %}
+
+    {% if self.instance.pk and has_action_permission.save_campaign %}
+        <p>
+            <a href="{% url "wagtail_newsletter:history" page_id=self.instance.pk %}">
+                {% icon name="history" classname="w-w-4 w-h-4" %}
+                History
+            </a>
+        </p>
+    {% endif %}
 </div>
