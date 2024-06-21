@@ -8,6 +8,7 @@ from django.utils.safestring import SafeString
 from django.utils.translation import gettext_lazy as _
 from wagtail.admin.panels import FieldPanel, ObjectList, TabbedInterface
 from wagtail.models import Page
+from wagtail.permissions import ModelPermissionPolicy
 
 from . import audiences, get_recipients_model_string, panels
 
@@ -142,6 +143,10 @@ class NewsletterPageMixin(Page):
             clean=False,
         )
         return revision
+
+    def has_newsletter_permission(self, user, action):
+        permission_policy = ModelPermissionPolicy(type(self))
+        return permission_policy.user_has_permission(user, "publish")
 
     newsletter_template: str
 

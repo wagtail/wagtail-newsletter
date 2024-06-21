@@ -102,22 +102,40 @@ def test_warn_backend_error(
     assert BACKEND_ERROR_TEXT in response.content.decode()
 
 
-def test_campaign_report(admin_client: Client, memory_backend: MemoryCampaignBackend):
+@pytest.mark.parametrize("has_permission", [True, False])
+def test_campaign_report(
+    admin_client: Client,
+    memory_backend: MemoryCampaignBackend,
+    monkeypatch: pytest.MonkeyPatch,
+    has_permission: bool,
+):
+    monkeypatch.setattr(
+        ArticlePage, "has_newsletter_permission", Mock(return_value=has_permission)
+    )
     campaign = Mock(status="sent")
     memory_backend.get_campaign = Mock(return_value=campaign)
-    campaign.get_report.return_value = {
+    report = {
         "bounces": 6,
         "clicks": 3,
         "emails_sent": 13,
         "opens": 5,
         "send_time": datetime(2024, 6, 17, 12, 51, 46, tzinfo=timezone.utc),
     }
+    campaign.get_report.return_value = report
     page = ArticlePage(title="Page title", newsletter_campaign="test-campaign-id")
     Site.objects.get().root_page.add_child(instance=page)
     url = reverse("wagtailadmin_pages:edit", kwargs={"page_id": page.pk})
-    html = admin_client.get(url).content.decode()
-    assert re.search(r"<b>Status:</b>\s*sent", html)
-    assert re.search(r"<b>Send time:</b>\s*June 17, 2024, 12:51 p\.m\.", html)
-    assert re.search(r"<b>Emails sent:</b>\s*13 \(6 bounces\)", html)
-    assert re.search(r"<b>Opens:</b>\s*5", html)
-    assert re.search(r"<b>Clicks:</b>\s*3", html)
+    response = admin_client.get(url)
+    context = dict(response.context)
+    html = response.content.decode()
+
+    if has_permission:
+        assert re.search(r"<b>Status:</b>\s*sent", html)
+        assert "report" in context
+        assert re.search(r"<b>Send time:</b>\s*June 17, 2024, 12:51 p\.m\.", html)
+        assert re.search(r"<b>Emails sent:</b>\s*13 \(6 bounces\)", html)
+        assert re.search(r"<b>Opens:</b>\s*5", html)
+        assert re.search(r"<b>Clicks:</b>\s*3", html)
+
+    else:
+        assert "report" not in context

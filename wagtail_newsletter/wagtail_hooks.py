@@ -1,8 +1,10 @@
 from typing import cast
 
+from django.contrib.auth.models import Permission
 from django.urls import include, path
 from django.views.i18n import JavaScriptCatalog
 from wagtail import hooks
+from wagtail.admin import messages
 from wagtail.models import Page
 
 from . import (
@@ -49,6 +51,22 @@ def register_admin_viewset():
     return register_viewsets
 
 
+@hooks.register("register_permissions")  # type: ignore
+def register_permissions():  # pragma: no cover
+    if get_recipients_model_string() == DEFAULT_RECIPIENTS_MODEL:
+        return Permission.objects.filter(
+            content_type__app_label="wagtail_newsletter",
+            codename__in=[
+                "add_newsletterrecipients",
+                "change_newsletterrecipients",
+                "delete_newsletterrecipients",
+            ],
+        )
+
+    else:
+        return Permission.objects.none()
+
+
 @hooks.register("after_create_page")  # type: ignore
 @hooks.register("after_edit_page")  # type: ignore
 def redirect_to_campaign_page(request, page: Page):
@@ -58,6 +76,13 @@ def redirect_to_campaign_page(request, page: Page):
         return
 
     page = cast(NewsletterPageMixin, page)
+
+    if not page.has_newsletter_permission(request.user, action):
+        messages.error(
+            request,
+            f"You do not have permission to perform the newsletter action {action!r}.",
+        )
+        return
 
     if action == "save_campaign":
         actions.save_campaign(request, page)
