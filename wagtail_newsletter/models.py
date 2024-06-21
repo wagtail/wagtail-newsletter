@@ -8,7 +8,7 @@ from django.utils.safestring import SafeString
 from django.utils.translation import gettext_lazy as _
 from wagtail.admin.panels import FieldPanel, ObjectList, TabbedInterface
 from wagtail.models import Page
-from wagtail.models.audit_log import BaseLogEntry
+from wagtail.models.audit_log import BaseLogEntry, BaseLogEntryManager
 from wagtail.permissions import ModelPermissionPolicy
 
 from . import audiences, get_recipients_model_string, panels
@@ -170,6 +170,11 @@ class NewsletterPageMixin(Page):
         return super().serve_preview(request, mode_name)
 
 
+class NewsletterLogEntryManager(BaseLogEntryManager):
+    def for_instance(self, instance):
+        return self.filter(page=instance)
+
+
 class NewsletterLogEntry(BaseLogEntry):
     page = models.ForeignKey(
         "wagtailcore.Page",
@@ -177,6 +182,8 @@ class NewsletterLogEntry(BaseLogEntry):
         db_constraint=False,
         related_name="+",
     )
+
+    objects = NewsletterLogEntryManager()
 
     class Meta:  # type: ignore
         ordering = ["-timestamp", "-id"]

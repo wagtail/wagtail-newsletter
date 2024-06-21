@@ -28,7 +28,7 @@ def register_admin_urls():
         ),
         path("recipients/", views.recipients, name="recipients"),
         path(
-            "pages/<int:page_id>/history/",
+            "pages/<int:pk>/history/",
             views.NewsletterHistoryView.as_view(),
             name="history",
         ),

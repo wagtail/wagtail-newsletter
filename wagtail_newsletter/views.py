@@ -2,10 +2,8 @@ from django.apps import apps
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from wagtail.admin.auth import permission_denied
-from wagtail.admin.views.pages.history import PageHistoryReportFilterSet
-from wagtail.admin.views.reports import ReportView
+from wagtail.admin.views.generic.history import HistoryView
 from wagtail.models import Page
-from wagtail.models.audit_log import log_action_registry
 
 from . import get_recipients_model_string
 from .models import NewsletterLogEntry, NewsletterPageMixin, NewsletterRecipientsBase
@@ -26,49 +24,46 @@ def recipients(request):
     )
 
 
-def get_actions_for_filter():
-    # Only return those actions used by newsletter log entries.
-    actions = set(NewsletterLogEntry.objects.all().get_actions())  # type: ignore
-    return [
-        action for action in log_action_registry.get_choices() if action[0] in actions
-    ]
+class NewsletterHistoryView(HistoryView):
+    object: NewsletterPageMixin
 
-
-class NewsletterHistoryReportFilterSet(PageHistoryReportFilterSet):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.filters["action"].extra["choices"] = get_actions_for_filter()
-
-
-class NewsletterHistoryView(ReportView):
-    template_name = "wagtailadmin/pages/history.html"
-    title = "Newsletter history"
-    header_icon = "history"
-    paginate_by = 20
-    filterset_class = NewsletterHistoryReportFilterSet
-
-    def dispatch(self, request, *args, **kwargs):
-        page = get_object_or_404(Page, id=kwargs.pop("page_id")).specific
+    def get_object(self):
+        page = get_object_or_404(Page, id=self.pk).specific
 
         if not isinstance(page, NewsletterPageMixin):
             raise Http404
 
-        if not page.has_newsletter_permission(request.user, "save_campaign"):
-            return permission_denied(request)
+        return page
 
-        self.page = page
+    def dispatch(self, request, *args, **kwargs):
+        if not self.object.has_newsletter_permission(
+            self.request.user, "save_campaign"
+        ):
+            return permission_denied(self.request)
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, *args, object_list=None, **kwargs):
-        context = super().get_context_data(*args, object_list=object_list, **kwargs)
-        context["page"] = self.page
-        context["subtitle"] = self.page.get_admin_display_title()
-        context["page_latest_revision"] = self.page.get_latest_revision()
+    # XXX Wagtail 5.2 expects a `model` property to generate the message
+    # "Edit this {model_name}", which is not displayed in our case
+    @property
+    def model(self):  # pragma: no cover
+        return type(self.object)
 
-        return context
+    # XXX Wagtail 5.2 doesn't have the `_annotate_queryset` method
+    def _annotate_queryset(self, queryset):  # pragma: no cover
+        if hasattr(self, "_annotate_queryset"):
+            return super()._annotate_queryset(queryset)
 
+        return queryset.select_related("revision", "user", "user__wagtail_userprofile")
+
+    # XXX Wagtail 6.0 calls `get_queryset` directly
     def get_queryset(self):
-        return NewsletterLogEntry.objects.filter(page=self.page).select_related(
-            "revision", "user", "user__wagtail_userprofile"
-        )
+        return NewsletterLogEntry.objects.for_instance(self.object)  # type: ignore
+
+    # XXX Wagtail 6.1 can't deal with a Null `permission_policy` so we stub out
+    # `user_can_unschedule`
+    def user_can_unschedule(self):
+        return False
+
+    def get_base_queryset(self):
+        return self._annotate_queryset(self.get_queryset())

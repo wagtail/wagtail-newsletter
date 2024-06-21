@@ -101,7 +101,7 @@ def test_send_campaign(page: ArticlePage, admin_client: Client, admin_user):
 
 def test_history_view(page: ArticlePage, admin_client: Client):
     entry = _log(page, "wagtail_newsletter.save_campaign")
-    url = reverse("wagtail_newsletter:history", kwargs={"page_id": page.pk})
+    url = reverse("wagtail_newsletter:history", kwargs={"pk": page.pk})
     response = admin_client.get(url)
     assert response.status_code == 200
     assert list(response.context["object_list"]) == [entry]
@@ -110,7 +110,7 @@ def test_history_view(page: ArticlePage, admin_client: Client):
 def test_history_view_wrong_page_type(admin_client: Client):
     page = SimplePage(title="Simple Page")
     Site.objects.get().root_page.add_child(instance=page)
-    url = reverse("wagtail_newsletter:history", kwargs={"page_id": page.pk})
+    url = reverse("wagtail_newsletter:history", kwargs={"pk": page.pk})
     response = admin_client.get(url)
     assert response.status_code == 404
 
@@ -121,7 +121,7 @@ def test_history_view_permission_denied(
     monkeypatch.setattr(
         ArticlePage, "has_newsletter_permission", Mock(return_value=False)
     )
-    url = reverse("wagtail_newsletter:history", kwargs={"page_id": page.pk})
+    url = reverse("wagtail_newsletter:history", kwargs={"pk": page.pk})
     response = admin_client.get(url, follow=True)
     assert response.redirect_chain == [("/admin/", 302)]
     assert [m.message.strip() for m in response.context["messages"]] == [
