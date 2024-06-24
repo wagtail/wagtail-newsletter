@@ -27,11 +27,6 @@ def register_admin_urls():
             name="javascript_catalog",
         ),
         path("recipients/", views.recipients, name="recipients"),
-        path(
-            "pages/<int:pk>/history/",
-            views.NewsletterHistoryView.as_view(),
-            name="history",
-        ),
     ]
 
     return [
@@ -111,11 +106,17 @@ def clear_campaign_after_copy(request, page, new_page):
 @hooks.register("register_log_actions")  # type: ignore
 def register_log_actions(actions):
     actions.register_action(
-        "wagtail_newsletter.save_campaign", "Save campaign", "Campaign saved"
+        "wagtail_newsletter.save_campaign",
+        "Newsletter: Save campaign",
+        "Newsletter: Campaign saved",
     )
     actions.register_action(
-        "wagtail_newsletter.send_test_email", "Send test email", "Test email sent"
+        "wagtail_newsletter.send_test_email",
+        "Newsletter: Send test email",
+        "Newsletter: Test email sent",
     )
     actions.register_action(
-        "wagtail_newsletter.send_campaign", "Send campaign", "Campaign sent"
+        "wagtail_newsletter.send_campaign",
+        "Newsletter: Send campaign",
+        "Newsletter: Campaign sent",
     )

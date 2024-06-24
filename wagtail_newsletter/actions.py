@@ -1,11 +1,11 @@
 from typing import cast
 
 from wagtail.admin import messages
-from wagtail.log_actions import get_active_log_context
+from wagtail.log_actions import log
 
 from . import campaign_backends
 from .forms import SendTestEmailForm
-from .models import NewsletterLogEntry, NewsletterPageMixin
+from .models import NewsletterPageMixin
 
 
 def save_campaign(request, page: NewsletterPageMixin) -> None:
@@ -29,7 +29,7 @@ def save_campaign(request, page: NewsletterPageMixin) -> None:
     page.newsletter_campaign = campaign_id
     page.save(update_fields=["newsletter_campaign"])
 
-    _log(
+    log(
         page,
         "wagtail_newsletter.save_campaign",
         revision=revision,
@@ -60,7 +60,7 @@ def send_test_email(request, page: NewsletterPageMixin) -> None:
         email=email,
     )
 
-    _log(page, "wagtail_newsletter.send_test_email", data={"email": email})
+    log(page, "wagtail_newsletter.send_test_email", data={"email": email})
 
     messages.success(request, f"Test message sent to {email!r}")
 
@@ -71,14 +71,6 @@ def send_campaign(request, page: NewsletterPageMixin) -> None:
     backend = campaign_backends.get_backend()
     backend.send_campaign(page.newsletter_campaign)
 
-    _log(page, "wagtail_newsletter.send_campaign")
+    log(page, "wagtail_newsletter.send_campaign")
 
     messages.success(request, "Newsletter campaign is now sending")
-
-
-def _log(instance, action, **kwargs):
-    user = get_active_log_context().user
-    uuid = get_active_log_context().uuid
-    return NewsletterLogEntry.objects.log_action(  # type: ignore
-        instance, action, page=instance, user=user, uuid=uuid, **kwargs
-    )
