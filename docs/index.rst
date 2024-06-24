@@ -7,6 +7,7 @@ Welcome to Wagtail Newsletter's documentation!
 
    installation
    usage
+   customization
 
 This is a work in progress.
 
