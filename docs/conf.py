@@ -7,6 +7,7 @@ author = "Alex Morega"
 release = "0.1.0"
 
 extensions = [
+    "sphinx.ext.autosectionlabel",
     "sphinx_wagtail_theme",
 ]
 
