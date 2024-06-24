@@ -51,8 +51,28 @@ filter, that does the same thing as ``richtext``, but generates full URLs like
 .. code-block:: htmldjango
 
   {% load wagtail_newsletter %}
+  ...
 
   {{ page.body|newsletter_richtext }}
+
+Embedding images as links
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When embedding images, be sure to use their ``full_url`` link:
+
+.. code-block:: htmldjango
+
+  {% load wagtailimages_tags %}
+  ...
+
+  {% image block.value.image width-800 as image %}
+  <mj-image src="{{ image.full_url }}" />
+
+.. warning::
+
+  If you include images in your newsletter, the emails will contain links to
+  image renditions served by Wagtail. Be careful with removing old renditions
+  as they might break emails that have been sent.
 
 Recipients model
 ----------------
