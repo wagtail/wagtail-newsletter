@@ -9,11 +9,7 @@ Welcome to Wagtail Newsletter's documentation!
    usage
    customization
 
-This is a work in progress.
-
 Indices and tables
 ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
