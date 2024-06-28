@@ -16,6 +16,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost"]
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
 INSTALLED_APPS = [
     "wagtail_newsletter",
     "demo",
@@ -36,6 +40,7 @@ INSTALLED_APPS = [
     "wagtail",
     "taggit",
     "rest_framework",
+    "debug_toolbar",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -46,6 +51,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
