@@ -8,7 +8,7 @@ Turn Wagtail pages into newsletters.
 
 ## Links
 
-- [Documentation](https://github.com/wagtail/wagtail-newsletter/blob/main/README.md)
+- [Documentation](https://wagtail-newsletter.readthedocs.io)
 - [Changelog](https://github.com/wagtail/wagtail-newsletter/blob/main/CHANGELOG.md)
 - [Contributing](https://github.com/wagtail/wagtail-newsletter/blob/main/CONTRIBUTING.md)
 - [Discussions](https://github.com/wagtail/wagtail-newsletter/discussions)
