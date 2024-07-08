@@ -93,6 +93,18 @@ Mailchimp, and optionally an *audience segment*, and click *Create*. When
 preparing a newsletter page, you can select this *Recipients* record to use as
 recipients for the campaign.
 
+Configure a Django cache
+------------------------
+
+In Wagtail Admin, when displaying recipients, an audience, or an audience
+segment, wagtail-newsletter must perform API calls to retrieve information like
+the audience name and number of subscribers. To avoid repeated API calls it's
+useful to set up Django's cache_ mechanism. Wagtail-newsletter will use the
+`default` cache, and store information for 5 minutes (configurable via the
+``WAGTAIL_NEWSLETTER_CACHE_TIMEOUT`` setting).
+
+.. _cache: https://docs.djangoproject.com/en/stable/topics/cache/#setting-up-the-cache
+
 Next steps
 ----------
 
