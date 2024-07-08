@@ -20,6 +20,7 @@ Contents
 
    installation
    usage
+   settings
    customization
 
 Indices and tables
