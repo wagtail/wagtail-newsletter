@@ -47,3 +47,16 @@ View report
 Once a campaign is sent, you can track its performance in the *Newsletter* tab
 of the Wagtail admin page editor. It shows sending status, send time, how many
 emails were sent, and how many people opened the message and clicked on a link.
+
+Audit log
+---------
+
+Newsletter-related actions performed by users on a newsletter page are `logged
+to the page history`_, just like regular save and publish actions. The following
+actions are logged:
+
+- :ref:`Save campaign <Save campaign withouth sending>`
+- :ref:`Send test email`
+- :ref:`Send campaign`
+
+.. _logged to the page history: https://docs.wagtail.org/en/stable/extending/audit_log.html
