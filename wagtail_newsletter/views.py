@@ -2,8 +2,8 @@ from django.apps import apps
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
-from wagtail_newsletter import get_recipients_model_string
-from wagtail_newsletter.models import NewsletterRecipientsBase
+from . import get_recipients_model_string
+from .models import NewsletterRecipientsBase
 
 
 def recipients(request):

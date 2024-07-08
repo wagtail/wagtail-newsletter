@@ -5,9 +5,7 @@ from django.utils.functional import cached_property
 from django.utils.html import format_html
 from wagtail.admin.panels import Panel
 
-from wagtail_newsletter.forms import SendTestEmailForm
-
-from . import campaign_backends, models
+from . import campaign_backends, forms, models
 
 
 logger = logging.getLogger(__name__)
@@ -72,7 +70,7 @@ class NewsletterPanel(Panel):
 
             context["backend_name"] = backend.name
             context["campaign"] = campaign
-            context["test_form"] = SendTestEmailForm(
+            context["test_form"] = forms.SendTestEmailForm(
                 initial={"email": self.request.user.email},
             )
 

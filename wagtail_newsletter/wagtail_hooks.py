@@ -5,6 +5,7 @@ from django.urls import include, path
 from django.views.i18n import JavaScriptCatalog
 from wagtail import hooks
 from wagtail.admin import messages
+from wagtail.log_actions import LogContext
 from wagtail.models import Page
 
 from . import (
@@ -84,14 +85,15 @@ def redirect_to_campaign_page(request, page: Page):
         )
         return
 
-    if action == "save_campaign":
-        actions.save_campaign(request, page)
+    with LogContext(user=request.user):
+        if action == "save_campaign":
+            actions.save_campaign(request, page)
 
-    if action == "send_test_email":
-        actions.send_test_email(request, page)
+        if action == "send_test_email":
+            actions.send_test_email(request, page)
 
-    if action == "send_campaign":
-        actions.send_campaign(request, page)
+        if action == "send_campaign":
+            actions.send_campaign(request, page)
 
 
 @hooks.register("after_copy_page")  # type: ignore
@@ -99,3 +101,22 @@ def clear_campaign_after_copy(request, page, new_page):
     if isinstance(new_page, NewsletterPageMixin) and new_page.newsletter_campaign:
         new_page.newsletter_campaign = ""
         new_page.save(update_fields=["newsletter_campaign"])
+
+
+@hooks.register("register_log_actions")  # type: ignore
+def register_log_actions(actions):
+    actions.register_action(
+        "wagtail_newsletter.save_campaign",
+        "Newsletter: Save campaign",
+        "Newsletter: Campaign saved",
+    )
+    actions.register_action(
+        "wagtail_newsletter.send_test_email",
+        "Newsletter: Send test email",
+        "Newsletter: Test email sent",
+    )
+    actions.register_action(
+        "wagtail_newsletter.send_campaign",
+        "Newsletter: Send campaign",
+        "Newsletter: Campaign sent",
+    )
