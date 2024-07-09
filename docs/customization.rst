@@ -74,6 +74,52 @@ When embedding images, be sure to use their ``full_url`` link:
   image renditions served by Wagtail. Be careful with removing old renditions
   as they might break emails that have been sent.
 
+Web-only and email-only content
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You might want to have content that is only included in the web or email
+version of a page. This can be accomplished by creating conditional Streamfield
+blocks that only render their content in the right context.
+
+First let's set a flag in the rendering context so we can use it later to
+distinguish between newsletter and web rendering.
+
+.. code-block:: python
+
+  from wagtail.fields import StreamField
+  from wagtail.models import Page
+  from wagtail_newsletter.models import NewsletterPageMixin
+
+  class ArticlePage(NewsletterPageMixin, Page):
+      body = StreamField(StoryBlock(), blank=True, use_json_field=True)
+
+      def get_newsletter_context(self):
+          context = super().get_newsletter_context()
+          context["rendering_newsletter"] = True
+          return context
+
+Then we can define a Streamfield block that only renders its content if the
+flag is set (or, for web-only content, if the flag is missing):
+
+.. code-block:: python
+
+  from wagtail import blocks
+
+  def is_rendering_newsletter(context):
+      return bool((context or {}).get("rendering_newsletter"))
+
+  class EmailOnlyBlock(blocks.RichTextBlock):
+      def render(self, value, context=None):
+          if not is_rendering_newsletter(context):
+              return ""
+
+          return super().render(value, context)
+
+  class StoryBlock(blocks.StreamBlock):
+      rich_text = blocks.RichTextBlock()
+      email_only = EmailOnlyBlock(group="Channel")
+
+
 Recipients model
 ----------------
 
