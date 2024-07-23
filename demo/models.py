@@ -43,9 +43,7 @@ class ArticlePage(NewsletterPageMixin, Page):  # type: ignore
     @classmethod
     def get_newsletter_panels(cls):
         panels = [panel.clone() for panel in super().get_newsletter_panels()]
-        panels[-1:-1] = [
-            FieldPanel("newsletter_preview", heading="Preview"),
-        ]
+        panels.insert(-1, FieldPanel("newsletter_preview", heading="Preview"))
         for panel in panels:
             panel.permission = "demo.sendnewsletter_articlepage"
         return panels
