@@ -17,6 +17,12 @@ class ArticlePage(NewsletterPageMixin, Page):  # type: ignore
     date = models.DateField("Publishing date", default=date.today)
     body = StreamField(StoryBlock(), blank=True, use_json_field=True)
 
+    newsletter_preview = models.CharField(
+        max_length=1000,
+        blank=True,
+        help_text="The preview that will be displayed in the inbox of the recipient.",
+    )
+
     content_panels = Page.content_panels + [
         FieldPanel("author"),
         FieldPanel("date"),
@@ -37,6 +43,7 @@ class ArticlePage(NewsletterPageMixin, Page):  # type: ignore
     @classmethod
     def get_newsletter_panels(cls):
         panels = [panel.clone() for panel in super().get_newsletter_panels()]
+        panels.insert(-1, FieldPanel("newsletter_preview", heading="Preview"))
         for panel in panels:
             panel.permission = "demo.sendnewsletter_articlepage"
         return panels
