@@ -30,6 +30,11 @@ window.wagtail.app.register("wn-panel",
       );
     }
 
+    deactivateProgress(progressController) {
+        // Workaround for https://github.com/wagtail/wagtail/issues/12057
+        progressController.loadingValue = false;
+    }
+
     test(event) {
       this.testAddressTarget.value = event.detail.address;
       this.testButtonProgress.activate();
@@ -61,14 +66,20 @@ window.wagtail.app.register("wn-panel",
         alert("Error fetching recipients");
       }
       finally {
-        // https://github.com/wagtail/wagtail/issues/12057
-        this.sendButtonProgress.loadingValue = false;
+        this.deactivateProgress(this.sendButtonProgress);
       }
     }
 
     send() {
       this.sendButtonProgress.activate();
       this.sendSubmitTarget.click();
+    }
+
+    dialogHidden(event) {
+      if (event.detail.dialog.id === 'w-overwrite-changes-dialog') {
+        this.deactivateProgress(this.testButtonProgress);
+        this.deactivateProgress(this.sendButtonProgress);
+      }
     }
   }
 );
