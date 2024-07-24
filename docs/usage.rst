@@ -29,8 +29,8 @@ When you're ready to unleash the campaign upon your audience, click *Send
 campaign* in the *Newsletter* editor tab. This will save a page revision,
 upload the content to the campaign provider, and trigger campaign sending.
 
-Save campaign withouth sending
-------------------------------
+Save campaign without sending
+-----------------------------
 
 If you want to simply upload the content to the campaign provider (without
 sending a test email or triggering the campaign sending), maybe to make tweaks
@@ -38,7 +38,7 @@ to the campaign in the provider's app, or use advanced features like scheduled
 sending, then click on *Save campaign to {provider}*. This will save a page
 revision, and upload the campaign, but take no further action.
 
-Keep in mind that any changes you make to the campaign will be overridden if
+Keep in mind that any changes you make to the campaign will be overwritten if
 you send a test email, or trigger campaign sending, from Wagtail.
 
 View report
@@ -55,7 +55,7 @@ Newsletter-related actions performed by users on a newsletter page are `logged
 to the page history`_, just like regular save and publish actions. The following
 actions are logged:
 
-- :ref:`Save campaign <Save campaign withouth sending>`
+- :ref:`Save campaign <Save campaign without sending>`
 - :ref:`Send test email`
 - :ref:`Send campaign`
 

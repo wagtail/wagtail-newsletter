@@ -8,6 +8,7 @@ release = "0.1.0"
 
 extensions = [
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.intersphinx",
     "sphinx_wagtail_theme",
 ]
 
@@ -25,3 +26,11 @@ html_theme_options = {
 }
 
 html_static_path = ["_static"]
+
+intersphinx_mapping = {
+    "django": (
+        "https://docs.djangoproject.com/en/stable/",
+        "https://docs.djangoproject.com/en/stable/_objects/",
+    ),
+}
+intersphinx_disabled_reftypes = ["*"]

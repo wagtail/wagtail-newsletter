@@ -78,8 +78,8 @@ Web-only and email-only content
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You might want to have content that is only included in the web or email
-version of a page. This can be accomplished by creating conditional Streamfield
-blocks that only render their content in the right context.
+version of a page. This can be accomplished by creating conditional
+``StreamField`` blocks that only render their content in the right context.
 
 First let's set a flag in the rendering context so we can use it later to
 distinguish between newsletter and web rendering.
@@ -98,7 +98,7 @@ distinguish between newsletter and web rendering.
           context["rendering_newsletter"] = True
           return context
 
-Then we can define a Streamfield block that only renders its content if the
+Then we can define a ``Streamfield`` block that only renders its content if the
 flag is set (or, for web-only content, if the flag is missing):
 
 .. code-block:: python

@@ -1,9 +1,8 @@
 Settings
 ========
 
-Wagtail-newsletter can be configured with the following `Django settings`_.
-
-.. _Django settings: https://docs.djangoproject.com/en/stable/ref/settings/
+Wagtail-newsletter can be configured with the following :doc:`Django settings
+<django:topics/settings>`.
 
 Campaigns
 ---------
