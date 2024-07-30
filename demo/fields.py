@@ -1,9 +1,9 @@
 import json
 
-from wagtail.fields import StreamField as WagtailStreamfield
+from wagtail.fields import StreamField as WagtailStreamField
 
 
-class StreamField(WagtailStreamfield):
+class StreamField(WagtailStreamField):
     def __init__(self, *args, **kwargs):
         """
         Overrides StreamField.__init__() to account for `block_types` no longer

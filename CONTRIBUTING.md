@@ -15,7 +15,7 @@ With your preferred virtualenv activated, install testing dependencies:
 
 ```sh
 python -m pip install --upgrade 'pip>=21.3'
-python -m pip install -e '.[testing]' -U
+python -m pip install -e '.[testing,ci,mailchimp,mrml]' -U
 ```
 
 ### Using flit
@@ -48,8 +48,8 @@ Now you can run tests as shown below:
 tox
 ```
 
-or, you can run them for a specific environment `tox -e python3.11-django4.2-wagtail5.1` or specific test
-`tox -e python3.11-django4.2-wagtail5.1-sqlite wagtail-newsletter.tests.test_file.TestClass.test_method`
+or, you can run them for a specific environment `tox -e python3.12-django5.0-wagtail6.1` or specific test
+`tox -e python3.12-django5.0-wagtail6.1-sqlite wagtail-newsletter.tests.test_file.TestClass.test_method`
 
 To run the test app interactively, use `tox -e interactive`, visit `http://127.0.0.1:8020/admin/` and log in with `admin`/`changeme`.
 

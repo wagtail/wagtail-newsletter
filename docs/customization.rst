@@ -98,7 +98,7 @@ distinguish between newsletter and web rendering.
           context["rendering_newsletter"] = True
           return context
 
-Then we can define a ``Streamfield`` block that only renders its content if the
+Then we can define a ``StreamField`` block that only renders its content if the
 flag is set (or, for web-only content, if the flag is missing):
 
 .. code-block:: python

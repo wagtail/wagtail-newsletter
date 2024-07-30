@@ -17,6 +17,7 @@ export WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-us1
 export WAGTAIL_NEWSLETTER_FROM_NAME="My Newsletter"
 export WAGTAIL_NEWSLETTER_REPLY_TO=sender@example.com
 
+python -m pip install --editable='.[testing,mailchimp,mrml]'
 ./demo/manage.py migrate
 ./demo/manage.py createcachetable
 ./demo/manage.py createsuperuser
