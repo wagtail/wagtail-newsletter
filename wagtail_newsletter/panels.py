@@ -18,9 +18,8 @@ class NewsletterPanel(Panel):
         instance: "models.NewsletterPageMixin"
 
         class Media:
-            js = [
-                "wagtail_newsletter/js/wagtail_newsletter.js",
-            ]
+            css = {"all": ["wagtail_newsletter/css/wagtail_newsletter.css"]}
+            js = ["wagtail_newsletter/js/wagtail_newsletter.js"]
 
         @cached_property
         def permissions(self):

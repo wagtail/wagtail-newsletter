@@ -65,45 +65,47 @@
                 data-wn-panel-target="testAddress"
             >
 
-            {% if has_action_permission.save_campaign %}
-                <button
-                    type="submit"
-                    class="button button-secondary button-longrunning"
-                    name="newsletter-action"
-                    value="save_campaign"
-                    data-controller="w-progress"
-                    data-action="w-progress#activate"
-                >
-                    {% icon name="spinner" %}
-                    Save campaign to {{ backend_name }}
-                </button>
-            {% endif %}
+            <div class="wn-panel--buttons">
+                {% if has_action_permission.save_campaign %}
+                    <button
+                        type="submit"
+                        class="button button-secondary button-longrunning"
+                        name="newsletter-action"
+                        value="save_campaign"
+                        data-controller="w-progress"
+                        data-action="w-progress#activate"
+                    >
+                        {% icon name="spinner" %}
+                        Save campaign to {{ backend_name }}
+                    </button>
+                {% endif %}
 
-            {% if has_action_permission.send_test_email %}
-                <button
-                    type="button"
-                    class="button button-secondary button-longrunning"
-                    data-a11y-dialog-show="wn-test-dialog"
-                    data-controller="w-progress"
-                    data-wn-panel-target="testButton"
-                >
-                    {% icon name="spinner" %}
-                    Send test email
-                </button>
-            {% endif %}
+                {% if has_action_permission.send_test_email %}
+                    <button
+                        type="button"
+                        class="button button-secondary button-longrunning"
+                        data-a11y-dialog-show="wn-test-dialog"
+                        data-controller="w-progress"
+                        data-wn-panel-target="testButton"
+                    >
+                        {% icon name="spinner" %}
+                        Send test email
+                    </button>
+                {% endif %}
 
-            {% if has_action_permission.send_campaign %}
-                <button
-                    type="button"
-                    class="button button-primary button-longrunning"
-                    data-controller="w-progress"
-                    data-wn-panel-target="sendButton"
-                    data-action="wn-panel#clickSend"
-                >
-                    {% icon name="spinner" %}
-                    Send campaign
-                </button>
-            {% endif %}
+                {% if has_action_permission.send_campaign %}
+                    <button
+                        type="button"
+                        class="button button-primary button-longrunning"
+                        data-controller="w-progress"
+                        data-wn-panel-target="sendButton"
+                        data-action="wn-panel#clickSend"
+                    >
+                        {% icon name="spinner" %}
+                        Send campaign
+                    </button>
+                {% endif %}
+            </div>
 
             {% dialog icon_name="mail" id="wn-test-dialog" title="Send test email" %}
                 <form

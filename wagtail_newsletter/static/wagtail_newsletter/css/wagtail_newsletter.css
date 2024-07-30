@@ -1,0 +1,11 @@
+.wn-panel--buttons {
+  display: flex;
+  flex-flow: row wrap;
+  row-gap: 0.5rem;
+  column-gap: 1rem;
+
+}
+
+.wn-panel--buttons .button {
+  margin-inline-start: 0;
+}
