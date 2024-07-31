@@ -48,6 +48,11 @@ class ArticlePage(NewsletterPageMixin, Page):  # type: ignore
             panel.permission = "demo.sendnewsletter_articlepage"
         return panels
 
+    def get_newsletter_context(self):
+        context = super().get_newsletter_context()
+        context["rendering_newsletter"] = True
+        return context
+
 
 class CustomRecipients(NewsletterRecipientsBase):
     greeting = RichTextField(blank=True)
