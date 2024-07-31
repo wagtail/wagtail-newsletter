@@ -1,21 +1,11 @@
 window.wagtail.app.register("wn-panel",
   class extends window.StimulusModule.Controller {
     static targets = [
-      "testButton",
-      "testAddress",
-      "testSubmit",
       "sendButton",
-      "sendSubmit",
     ]
 
     static values = {
       recipientsUrl: String
-    }
-
-    get testButtonProgress() {
-      return this.application.getControllerForElementAndIdentifier(
-        this.testButtonTarget, "w-progress"
-      );
     }
 
     get sendButtonProgress() {
@@ -28,12 +18,6 @@ window.wagtail.app.register("wn-panel",
       return this.application.getControllerForElementAndIdentifier(
         document.querySelector("#wn-recipients-required"), "w-dialog"
       );
-    }
-
-    test(event) {
-      this.testAddressTarget.value = event.detail.address;
-      this.testButtonProgress.activate();
-      this.testSubmitTarget.click();
     }
 
     async clickSend() {
@@ -65,28 +49,6 @@ window.wagtail.app.register("wn-panel",
         this.sendButtonProgress.loadingValue = false;
       }
     }
-
-    send() {
-      this.sendButtonProgress.activate();
-      this.sendSubmitTarget.click();
-    }
-  }
-);
-
-
-window.wagtail.app.register("wn-test",
-  class extends window.StimulusModule.Controller {
-    get dialog() {
-      return this.application.getControllerForElementAndIdentifier(
-        this.element.closest("[data-controller=w-dialog]"), "w-dialog"
-      );
-    }
-
-    submit() {
-      const address = this.element.querySelector("input[name=email]").value;
-      this.dispatch("submit", { detail: { address } });
-      this.dialog.hide();
-    }
   }
 );
 
@@ -108,10 +70,15 @@ window.wagtail.app.register("wn-send",
       this.messageTarget.textContent = `Sending campaign to ${name}, with ${member_count} recipients.`;
       this.dialog.show();
     }
+  }
+);
 
-    submit() {
-      this.dispatch("submit");
-      this.dialog.hide();
+
+window.wagtail.app.register("wn-submit",
+  class extends window.StimulusModule.Controller {
+    sendEvent(event) {
+      const eventName = this.element.value;
+      this.dispatch(eventName, { detail: { event } });
     }
   }
 );
