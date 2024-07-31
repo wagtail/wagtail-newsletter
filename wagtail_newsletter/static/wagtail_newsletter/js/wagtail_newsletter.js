@@ -88,6 +88,24 @@ window.wagtail.app.register("wn-submit",
       setTimeout(() => this.button.click(), 0);
     }
 
+    /* Dispatch an event to announce that a particular button was clicked. This
+     * is caught by the buttons in the panel so that they can trigger their
+     * `w-progress` spinners.
+     *
+     * The event name is picked up from the button's value attribute. So for a
+     * button defined like this:
+     *
+     * <button
+     *    type="submit"
+     *    name="newsletter-action"
+     *    value="send_test_email"
+     * >Send test email</button>
+     *
+     * the component will dispatch an event named `wn-submit:send_test_email`.
+     *
+     * This helps each user-visible non-submit button to catch the right event
+     * and trigger its spinner.
+     */
     sendEvent(event) {
       const eventName = this.button.value;
       this.dispatch(eventName, { detail: { event } });
