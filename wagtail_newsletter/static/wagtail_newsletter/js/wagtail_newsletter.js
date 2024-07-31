@@ -76,8 +76,20 @@ window.wagtail.app.register("wn-send",
 
 window.wagtail.app.register("wn-submit",
   class extends window.StimulusModule.Controller {
+    static targets = [
+      "button",
+    ]
+
+    get button() {
+      return this.hasButtonTarget ? this.buttonTarget : this.element;
+    }
+
+    enter() {
+      setTimeout(() => this.button.click(), 0);
+    }
+
     sendEvent(event) {
-      const eventName = this.element.value;
+      const eventName = this.button.value;
       this.dispatch(eventName, { detail: { event } });
     }
   }

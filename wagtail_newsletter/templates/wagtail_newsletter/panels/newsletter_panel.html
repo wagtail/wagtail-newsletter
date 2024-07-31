@@ -125,29 +125,34 @@
                     This action will save a draft page revision.
                 </p>
 
-                {% include "wagtailadmin/shared/field.html" with field=test_form.email %}
-
-                <button
-                    type="submit"
-                    class="button button-primary"
-                    name="newsletter-action"
-                    value="send_test_email"
+                <div
                     data-controller="wn-submit"
-                    data-action="
-                        wn-submit#sendEvent
-                        w-dialog#hide
-                    "
+                    data-action="keydown.enter->wn-submit#enter:prevent"
                 >
-                    Send test email
-                </button>
+                    {% include "wagtailadmin/shared/field.html" with field=test_form.email %}
 
-                <button
-                    type="button"
-                    class="button button-secondary"
-                    data-action="w-dialog#hide"
-                >
-                    Cancel
-                </button>
+                    <button
+                        type="submit"
+                        class="button button-primary"
+                        name="newsletter-action"
+                        value="send_test_email"
+                        data-wn-submit-target="button"
+                        data-action="
+                            wn-submit#sendEvent
+                            w-dialog#hide
+                        "
+                    >
+                        Send test email
+                    </button>
+
+                    <button
+                        type="button"
+                        class="button button-secondary"
+                        data-action="w-dialog#hide"
+                    >
+                        Cancel
+                    </button>
+                </div>
             {% enddialog %}
 
             {% dialog icon_name="mail" id="wn-recipients-required" title="Send campaign" dialog_root_selector="[data-edit-form]" %}
