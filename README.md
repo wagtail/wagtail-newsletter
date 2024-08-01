@@ -18,7 +18,7 @@ Turn Wagtail pages into newsletters.
 
 - Python (3.8, 3.9, 3.10, 3.11, 3.12)
 - Django (4.2, 5.0)
-- Wagtail (5.2, 6.0, 6.1)
+- Wagtail (5.2, 6.1, 6.2)
 
 ## Installation
 
