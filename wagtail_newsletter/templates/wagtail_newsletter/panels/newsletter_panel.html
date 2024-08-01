@@ -4,10 +4,6 @@
     class="wn-panel"
     data-controller="wn-panel"
     data-wn-panel-recipients-url-value="{% url "wagtail_newsletter:recipients" %}"
-    data-action="
-        wn-test:submit@window->wn-panel#test
-        wn-send:submit@window->wn-panel#send
-    "
 >
     {% if error_message %}
         <div class="help-block help-critical">
@@ -51,118 +47,169 @@
 
     {% else %}
 
-        {% if has_action_permission %}
-            <div class="help-block help-info">
-                {% icon name="help" %}
-                These actions will save a new page revision.
-            </div>
-        {% endif %}
-
         <p>
-            <input
-                type="hidden"
-                name="newsletter-test-email"
-                data-wn-panel-target="testAddress"
-            >
+            <div class="wn-panel--buttons">
+                {% if has_action_permission.save_campaign %}
+                    <button
+                        type="button"
+                        class="button button-secondary button-longrunning"
+                        data-a11y-dialog-show="wn-save-dialog"
+                        data-controller="w-progress"
+                        data-action="wn-submit:save_campaign@window->w-progress#activate"
+                    >
+                        {% icon name="spinner" %}
+                        Save campaign to {{ backend_name }}
+                    </button>
+                {% endif %}
 
-            {% if has_action_permission.save_campaign %}
+                {% if has_action_permission.send_test_email %}
+                    <button
+                        type="button"
+                        class="button button-secondary button-longrunning"
+                        data-a11y-dialog-show="wn-test-dialog"
+                        data-controller="w-progress"
+                        data-action="wn-submit:send_test_email@window->w-progress#activate"
+                    >
+                        {% icon name="spinner" %}
+                        Send test email
+                    </button>
+                {% endif %}
+
+                {% if has_action_permission.send_campaign %}
+                    <button
+                        type="button"
+                        class="button button-primary button-longrunning"
+                        data-controller="w-progress"
+                        data-wn-panel-target="sendButton"
+                        data-action="
+                            wn-panel#sendCampaign
+                            wn-submit:send_campaign@window->w-progress#activate
+                        "
+                    >
+                        {% icon name="spinner" %}
+                        Send campaign
+                    </button>
+                {% endif %}
+            </div>
+
+            {% fragment as save_dialog_subtitle %}
+                This action will save a new draft page revision and save the
+                newsletter campaign to {{ backend_name }} with your changes.
+            {% endfragment %}
+
+            {% dialog icon_name="mail" id="wn-save-dialog" title="Save campaign" dialog_root_selector="[data-edit-form]" subtitle=save_dialog_subtitle %}
                 <button
                     type="submit"
-                    class="button button-secondary button-longrunning"
+                    class="button button-primary"
                     name="newsletter-action"
                     value="save_campaign"
-                    data-controller="w-progress"
-                    data-action="w-progress#activate"
+                    data-controller="wn-submit"
+                    data-action="
+                        wn-submit#sendEvent
+                        w-dialog#hide
+                    "
                 >
-                    {% icon name="spinner" %}
                     Save campaign to {{ backend_name }}
                 </button>
-            {% endif %}
 
-            {% if has_action_permission.send_test_email %}
                 <button
                     type="button"
-                    class="button button-secondary button-longrunning"
-                    data-a11y-dialog-show="wn-test-dialog"
-                    data-controller="w-progress"
-                    data-wn-panel-target="testButton"
+                    class="button button-secondary"
+                    data-action="w-dialog#hide"
                 >
-                    {% icon name="spinner" %}
-                    Send test email
+                    Cancel
                 </button>
-            {% endif %}
+            {% enddialog %}
 
-            {% if has_action_permission.send_campaign %}
-                <button
-                    type="button"
-                    class="button button-primary button-longrunning"
-                    data-controller="w-progress"
-                    data-wn-panel-target="sendButton"
-                    data-action="wn-panel#clickSend"
-                >
-                    {% icon name="spinner" %}
-                    Send campaign
-                </button>
-            {% endif %}
+            {% fragment as test_dialog_subtitle %}
+                This action will save a new draft page revision and send a test
+                email with your changes.
+            {% endfragment %}
 
-            {% dialog icon_name="mail" id="wn-test-dialog" title="Send test email" %}
-                <form
-                    data-controller="wn-test"
-                    data-action="wn-test#submit:prevent"
+            {% dialog icon_name="mail" id="wn-test-dialog" title="Send test email" dialog_root_selector="[data-edit-form]" subtitle=test_dialog_subtitle %}
+                <div
+                    data-controller="wn-submit"
+                    data-action="keydown.enter->wn-submit#submit:prevent"
                 >
                     {% include "wagtailadmin/shared/field.html" with field=test_form.email %}
 
-                    <button type="submit" class="button button-primary">Send</button>
-                    <button type="button" class="button button-secondary" data-action="w-dialog#hide">Cancel</button>
-                </form>
+                    <button
+                        type="submit"
+                        class="button button-primary"
+                        name="newsletter-action"
+                        value="send_test_email"
+                        data-wn-submit-target="button"
+                        data-action="
+                            wn-submit#sendEvent
+                            w-dialog#hide
+                        "
+                    >
+                        Send test email
+                    </button>
+
+                    <button
+                        type="button"
+                        class="button button-secondary"
+                        data-action="w-dialog#hide"
+                    >
+                        Cancel
+                    </button>
+                </div>
             {% enddialog %}
 
-            {% dialog icon_name="mail" id="wn-recipients-required" title="Send campaign" %}
+            {% dialog icon_name="mail" id="wn-recipients-required" title="Send campaign" dialog_root_selector="[data-edit-form]" %}
                 <div class="help-block help-warning">
                     {% icon name="warning" %}
-                    <p>You must frist select recipients for the newsletter.</p>
+                    <p>You must first select recipients for the newsletter.</p>
                 </div>
-                <button type="button" class="button" data-action="w-dialog#hide">Continue</button>
+
+                <button
+                    type="button"
+                    class="button"
+                    data-action="w-dialog#hide"
+                >
+                    Continue
+                </button>
             {% enddialog %}
 
-            {% dialog icon_name="mail" id="wn-send-dialog" title="Send campaign" %}
-                <form
-                    class="loading-mask"
+            {% fragment as send_dialog_subtitle %}
+                This action will save a new draft page revision and send the
+                campaign using {{ backend_name }} with your changes.
+            {% endfragment %}
+
+            {% dialog icon_name="mail" id="wn-send-dialog" title="Send campaign" dialog_root_selector="[data-edit-form]" subtitle=send_dialog_subtitle %}
+                <div
                     data-controller="wn-send"
-                    data-action="
-                        wn-send#submit:prevent
-                        wn-panel:showSendDialog@window->wn-send#show
-                    "
+                    data-action="wn-panel:showSendDialog@window->wn-send#show"
                 >
-                    <div class="help-block help-info">
+                    <div class="help-block help-warning">
                         {% icon name="warning" %}
                         <p data-wn-send-target="message"></p>
                     </div>
 
-                    <button type="submit" class="button button-primary">Send</button>
-                    <button type="button" class="button button-secondary" data-action="w-dialog#hide">Cancel</button>
-                </form>
+                    <button
+                        type="submit"
+                        class="button button-primary"
+                        name="newsletter-action"
+                        value="send_campaign"
+                        data-controller="wn-submit"
+                        data-action="
+                            wn-submit#sendEvent
+                            w-dialog#hide
+                        "
+                    >
+                        Send
+                    </button>
+
+                    <button
+                        type="button"
+                        class="button button-secondary"
+                        data-action="w-dialog#hide"
+                    >
+                        Cancel
+                    </button>
+                </div>
             {% enddialog %}
-
-            <button
-                type="submit"
-                class="w-hidden"
-                name="newsletter-action"
-                value="send_test_email"
-                data-wn-panel-target="testSubmit"
-            >
-                Send test email
-            </button>
-
-            <button
-                type="submit"
-                class="w-hidden"
-                name="newsletter-action"
-                value="send_campaign"
-                data-wn-panel-target="sendSubmit"
-            >
-                Send campaign
-            </button>
         </p>
     {% endif %}
 
