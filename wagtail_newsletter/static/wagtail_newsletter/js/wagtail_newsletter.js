@@ -84,7 +84,7 @@ window.wagtail.app.register("wn-submit",
       return this.hasButtonTarget ? this.buttonTarget : this.element;
     }
 
-    /* Capture the keydow.enter event from the input element and convert it
+    /* Capture the keydown.enter event from the input element and convert it
      * into a click event on the correct button.
      */
     submit(event) {
