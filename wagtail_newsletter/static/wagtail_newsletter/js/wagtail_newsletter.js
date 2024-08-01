@@ -20,7 +20,7 @@ window.wagtail.app.register("wn-panel",
       );
     }
 
-    async clickSend() {
+    async sendCampaign() {
       const form = this.element.closest("form");
       const recipientsId = form.querySelector("[name=newsletter_recipients]").value;
       if (!recipientsId) {
@@ -84,8 +84,16 @@ window.wagtail.app.register("wn-submit",
       return this.hasButtonTarget ? this.buttonTarget : this.element;
     }
 
-    enter() {
-      setTimeout(() => this.button.click(), 0);
+    /* Capture the keydow.enter event from the input element and convert it
+     * into a click event on the correct button.
+     */
+    submit(event) {
+      // Stimulus has trouble with autofill
+      // (https://github.com/hotwired/stimulus/issues/743), so better
+      // double-check the event type ourselves.
+      if (event.key !== "Enter") return;
+
+      this.button.click();
     }
 
     /* Dispatch an event to announce that a particular button was clicked. This
