@@ -1,4 +1,4 @@
-# Contributing to Newsletter
+# Contributing to Wagtail Newsletter
 
 ## Install
 
