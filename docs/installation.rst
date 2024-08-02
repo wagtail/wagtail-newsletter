@@ -12,7 +12,7 @@ Install the package from PyPI
 
 .. code-block:: shell
 
-  pip install wagtail-newsletter
+  pip install 'wagtail-newsletter[mailchimp,mrml]'
 
 Configure Django settings
 -------------------------
@@ -58,7 +58,8 @@ Add ``NewsletterPageMixin`` to a page model:
           FieldPanel("body"),
       ]
 
-      newsletter_template = "demo/article_page_newsletter.html"
+      # replace app_name with your app name
+      newsletter_template = "app_name/article_page_newsletter.html"
 
 Create a page template for the email body
 (``templates/demo/article_page_newsletter.html``). The content of the template
