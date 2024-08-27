@@ -14,40 +14,62 @@ window.wagtail.app.register("wn-panel",
       );
     }
 
-    get sendRecipientsRequiredDialog() {
+    get recipientsRequiredDialog() {
       return this.application.getControllerForElementAndIdentifier(
         document.querySelector("#wn-recipients-required"), "w-dialog"
       );
     }
 
-    async sendCampaign() {
+    /*
+     * Get the currently selected `newsletter_recipients` ID. If no recipients
+     * are selected, show a dialog with an error message.
+     */
+    getRecipients() {
       const form = this.element.closest("form");
       const recipientsId = form.querySelector("[name=newsletter_recipients]").value;
       if (!recipientsId) {
-        this.sendRecipientsRequiredDialog.show();
+        this.recipientsRequiredDialog.show();
         return;
       }
+      return recipientsId;
+    }
 
-      this.sendButtonProgress.activate();
-      const url = new URL(this.recipientsUrlValue, window.location.href);
-      url.searchParams.set("pk", recipientsId);
-
+    async getRecipientsData(recipientsId) {
       try {
+        const url = new URL(this.recipientsUrlValue, window.location.href);
+        url.searchParams.set("pk", recipientsId);
         const response = await fetch(url);
         if (response.status < 200 || response.status >= 300) {
           throw new Error(`Response status is ${response.status} ${response.statusText}`);
         }
-        const data = await response.json();
-        this.dispatch("showSendDialog", { detail: data });
+        return await response.json();
       }
       catch (error) {
         console.error(error);
         alert("Error fetching recipients");
       }
-      finally {
-        // https://github.com/wagtail/wagtail/issues/12057
-        this.sendButtonProgress.loadingValue = false;
+    }
+
+    /*
+     * Work-around for https://github.com/wagtail/wagtail/issues/12057
+     */
+    deactivateProgress(progress) {
+      progress.loadingValue = false;
+    }
+
+    async sendCampaign() {
+      const recipientsId = this.getRecipients();
+      if (!recipientsId) {
+        return;
       }
+
+      this.sendButtonProgress.activate();
+      const detail = await this.getRecipientsData(recipientsId);
+      if (detail) {
+        this.dispatch("showSendDialog", { detail });
+      }
+
+      this.deactivateProgress(this.sendButtonProgress);
     }
   }
 );
