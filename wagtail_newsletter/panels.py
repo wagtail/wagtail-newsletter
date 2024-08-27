@@ -29,6 +29,7 @@ class NewsletterPanel(Panel):
                     "save_campaign",
                     "send_test_email",
                     "send_campaign",
+                    "schedule_campaign",
                     "get_report",
                 ]
                 if self.instance.has_newsletter_permission(self.request.user, action)
@@ -72,6 +73,9 @@ class NewsletterPanel(Panel):
             context["test_form"] = forms.SendTestEmailForm(
                 initial={"email": self.request.user.email},
                 prefix="newsletter-test",
+            )
+            context["schedule_form"] = forms.ScheduleCampaignForm(
+                prefix="newsletter-schedule",
             )
 
             if campaign is not None and campaign.sent:

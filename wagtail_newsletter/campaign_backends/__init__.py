@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import Any, Optional
 
 from django.conf import settings
@@ -54,6 +55,9 @@ class CampaignBackend(ABC):
 
     @abstractmethod
     def send_campaign(self, campaign_id: str) -> None: ...
+
+    @abstractmethod
+    def schedule_campaign(self, campaign_id: str, schedule_time: datetime) -> None: ...
 
 
 def get_backend() -> CampaignBackend:

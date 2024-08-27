@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from unittest.mock import Mock
 
 import pytest
@@ -15,6 +16,7 @@ pytestmark = pytest.mark.django_db
 CAMPAIGN_ID = "test-campaign-id"
 CAMPAIGN_URL = "http://campaign.example.com"
 EMAIL = "test@example.com"
+SCHEDULE_TIME = datetime(2024, 8, 10, 16, 30, tzinfo=timezone.utc)
 
 
 @pytest.fixture
@@ -30,6 +32,7 @@ def backend(memory_backend: MemoryCampaignBackend):
     memory_backend.get_campaign = Mock()
     memory_backend.send_test_email = Mock()
     memory_backend.send_campaign = Mock()
+    memory_backend.schedule_campaign = Mock()
 
 
 def page_ptr(page: ArticlePage) -> Page:
@@ -85,5 +88,22 @@ def test_send_campaign(page: ArticlePage, admin_client: Client, admin_user):
 
     assert get_log_entries() == [
         (page_ptr(page), admin_user, "wagtail_newsletter.send_campaign"),
+        (page_ptr(page), admin_user, "wagtail_newsletter.save_campaign"),
+    ]
+
+
+def test_schedule_campaign(page: ArticlePage, admin_client: Client, admin_user):
+    url = reverse("wagtailadmin_pages:edit", kwargs={"page_id": page.pk})
+    schedule_time = SCHEDULE_TIME.replace(tzinfo=None)
+    data = {
+        "title": page.title,
+        "slug": page.slug,
+        "newsletter-action": "schedule_campaign",
+        "newsletter-schedule-schedule_time": schedule_time.isoformat(),
+    }
+    admin_client.post(url, data)
+
+    assert get_log_entries() == [
+        (page_ptr(page), admin_user, "wagtail_newsletter.schedule_campaign"),
         (page_ptr(page), admin_user, "wagtail_newsletter.save_campaign"),
     ]

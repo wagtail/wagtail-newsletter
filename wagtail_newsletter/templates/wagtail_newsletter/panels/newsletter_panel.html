@@ -24,7 +24,11 @@
                     <p>
                         <b>Send time:</b>
                         {{ report.send_time }}
-                        ({{ report.send_time|timesince }} ago).
+                        {% if campaign.status == "schedule" %}
+                            (in {{ report.send_time|timeuntil }}).
+                        {% else %}
+                            ({{ report.send_time|timesince }} ago).
+                        {% endif %}
                     </p>
                 {% endif %}
 
@@ -88,6 +92,22 @@
                     >
                         {% icon name="spinner" %}
                         Send campaign
+                    </button>
+                {% endif %}
+
+                {% if has_action_permission.schedule_campaign %}
+                    <button
+                        type="button"
+                        class="button button-primary button-longrunning"
+                        data-controller="w-progress"
+                        data-wn-panel-target="scheduleButton"
+                        data-action="
+                            wn-panel#scheduleCampaign
+                            wn-submit:schedule_campaign@window->w-progress#activate
+                        "
+                    >
+                        {% icon name="spinner" %}
+                        Schedule campaign
                     </button>
                 {% endif %}
             </div>
@@ -199,6 +219,47 @@
                         "
                     >
                         Send
+                    </button>
+
+                    <button
+                        type="button"
+                        class="button button-secondary"
+                        data-action="w-dialog#hide"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            {% enddialog %}
+
+            {% fragment as schedule_dialog_subtitle %}
+                This action will save a new draft page revision and schedule
+                the campaign using {{ backend_name }} with your changes.
+            {% endfragment %}
+
+            {% dialog icon_name="mail" id="wn-schedule-dialog" title="Schedule campaign" dialog_root_selector="[data-edit-form]" subtitle=schedule_dialog_subtitle %}
+                <div
+                    data-controller="wn-send"
+                    data-action="wn-panel:showScheduleDialog@window->wn-send#show"
+                >
+                    <div class="help-block help-warning">
+                        {% icon name="warning" %}
+                        <p data-wn-send-target="message"></p>
+                    </div>
+
+                    {% include "wagtailadmin/shared/field.html" with field=schedule_form.schedule_time %}
+
+                    <button
+                        type="submit"
+                        class="button button-primary"
+                        name="newsletter-action"
+                        value="schedule_campaign"
+                        data-controller="wn-submit"
+                        data-action="
+                            wn-submit#sendEvent
+                            w-dialog#hide
+                        "
+                    >
+                        Schedule
                     </button>
 
                     <button

@@ -95,6 +95,9 @@ def redirect_to_campaign_page(request, page: Page):
         if action == "send_campaign":
             actions.send_campaign(request, page)
 
+        if action == "schedule_campaign":
+            actions.schedule_campaign(request, page)
+
 
 @hooks.register("after_copy_page")  # type: ignore
 def clear_campaign_after_copy(request, page, new_page):
@@ -119,4 +122,9 @@ def register_log_actions(actions):
         "wagtail_newsletter.send_campaign",
         "Newsletter: Send campaign",
         "Newsletter: Campaign sent",
+    )
+    actions.register_action(
+        "wagtail_newsletter.schedule_campaign",
+        "Newsletter: Schedule campaign",
+        "Newsletter: Campaign scheduled",
     )

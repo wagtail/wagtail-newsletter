@@ -2,6 +2,7 @@ window.wagtail.app.register("wn-panel",
   class extends window.StimulusModule.Controller {
     static targets = [
       "sendButton",
+      "scheduleButton",
     ]
 
     static values = {
@@ -11,6 +12,12 @@ window.wagtail.app.register("wn-panel",
     get sendButtonProgress() {
       return this.application.getControllerForElementAndIdentifier(
         this.sendButtonTarget, "w-progress"
+      );
+    }
+
+    get scheduleButtonProgress() {
+      return this.application.getControllerForElementAndIdentifier(
+        this.scheduleButtonTarget, "w-progress"
       );
     }
 
@@ -70,6 +77,21 @@ window.wagtail.app.register("wn-panel",
       }
 
       this.deactivateProgress(this.sendButtonProgress);
+    }
+
+    async scheduleCampaign() {
+      const recipientsId = this.getRecipients();
+      if (!recipientsId) {
+        return;
+      }
+
+      this.scheduleButtonProgress.activate();
+      const detail = await this.getRecipientsData(recipientsId);
+      if (detail) {
+        this.dispatch("showScheduleDialog", { detail });
+      }
+
+      this.deactivateProgress(this.scheduleButtonProgress);
     }
   }
 );

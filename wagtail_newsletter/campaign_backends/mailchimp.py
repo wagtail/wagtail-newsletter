@@ -237,6 +237,27 @@ class MailchimpCampaignBackend(CampaignBackend):
                 error, "Error while sending campaign", campaign_id=campaign_id
             )
 
+    def schedule_campaign(self, campaign_id: str, schedule_time: datetime) -> None:
+        rounded_minute = (schedule_time.minute // 15) * 15
+        rounded_time = schedule_time.replace(
+            minute=rounded_minute, second=0, microsecond=0
+        )
+        if rounded_time != schedule_time:
+            raise CampaignBackendError(
+                "schedule_time may only be in 15 minute intervals,"
+                " e.g. 13:15 not 13:10."
+            )
+
+        try:
+            self.client.campaigns.schedule(
+                campaign_id, {"schedule_time": schedule_time.isoformat()}
+            )
+
+        except ApiClientError as error:
+            _log_and_raise(
+                error, "Error while scheduling campaign", campaign_id=campaign_id
+            )
+
 
 def _log_and_raise(error: ApiClientError, message: str, **kwargs) -> NoReturn:
     kwargs["status_code"] = error.status_code

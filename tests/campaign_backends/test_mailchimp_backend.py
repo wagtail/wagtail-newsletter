@@ -1,6 +1,6 @@
 import logging
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from unittest.mock import ANY, Mock, call
 
@@ -32,6 +32,7 @@ CAMPAIGN_WEB_ID = "test-web-id"
 NEW_CAMPAIGN_ID = "test-new-campaign-id"
 API_ERROR_TEXT = "something failed"
 EMAIL = "test@example.com"
+SCHEDULE_TIME = datetime(2024, 8, 10, 16, 30, tzinfo=timezone.utc)
 
 
 class MockMailchimpCampaignBackend(MailchimpCampaignBackend):
@@ -423,10 +424,30 @@ def test_send_campaign(backend: MockMailchimpCampaignBackend):
 
 
 def test_send_campaign_failure(backend: MockMailchimpCampaignBackend):
-    backend.send_campaign(CAMPAIGN_ID)
-    assert backend.client.campaigns.send.mock_calls == [call(CAMPAIGN_ID)]
     backend.client.campaigns.send.side_effect = ApiClientError("", 400)
     with pytest.raises(CampaignBackendError) as error:
         backend.send_campaign(campaign_id=CAMPAIGN_ID)
 
     assert error.match("Error while sending campaign")
+
+
+def test_schedule_campaign(backend: MockMailchimpCampaignBackend):
+    backend.schedule_campaign(CAMPAIGN_ID, SCHEDULE_TIME)
+    assert backend.client.campaigns.schedule.mock_calls == [
+        call(CAMPAIGN_ID, {"schedule_time": SCHEDULE_TIME.isoformat()})
+    ]
+
+
+def test_schedule_campaign_failure(backend: MockMailchimpCampaignBackend):
+    backend.client.campaigns.schedule.side_effect = ApiClientError("", 400)
+    with pytest.raises(CampaignBackendError) as error:
+        backend.schedule_campaign(CAMPAIGN_ID, SCHEDULE_TIME)
+
+    assert error.match("Error while scheduling campaign")
+
+
+def test_schedule_campaign_invalid_time(backend: MockMailchimpCampaignBackend):
+    with pytest.raises(CampaignBackendError) as error:
+        backend.schedule_campaign(CAMPAIGN_ID, SCHEDULE_TIME + timedelta(minutes=1))
+
+    assert error.match("schedule_time may only be in 15 minute intervals")

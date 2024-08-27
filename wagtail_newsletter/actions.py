@@ -1,10 +1,10 @@
 from typing import cast
 
+from django.utils.formats import localize
 from wagtail.admin import messages
 from wagtail.log_actions import log
 
-from . import campaign_backends
-from .forms import SendTestEmailForm
+from . import campaign_backends, forms
 from .models import NewsletterPageMixin
 
 
@@ -43,7 +43,7 @@ def save_campaign(request, page: NewsletterPageMixin) -> None:
 
 
 def send_test_email(request, page: NewsletterPageMixin) -> None:
-    form = SendTestEmailForm(request.POST, prefix="newsletter-test")
+    form = forms.SendTestEmailForm(request.POST, prefix="newsletter-test")
     if not form.is_valid():
         for field, errors in form.errors.items():
             for message in errors:
@@ -86,3 +86,37 @@ def send_campaign(request, page: NewsletterPageMixin) -> None:
     log(page, "wagtail_newsletter.send_campaign")
 
     messages.success(request, "Newsletter campaign is now sending")
+
+
+def schedule_campaign(request, page: NewsletterPageMixin) -> None:
+    form = forms.ScheduleCampaignForm(request.POST, prefix="newsletter-schedule")
+    if not form.is_valid():
+        for field, errors in form.errors.items():
+            for message in errors:
+                messages.error(request, f"{field!r}: {message}")
+        return
+
+    schedule_time = form.cleaned_data["schedule_time"]
+
+    save_campaign(request, page)
+
+    backend = campaign_backends.get_backend()
+
+    try:
+        backend.schedule_campaign(
+            campaign_id=page.newsletter_campaign,
+            schedule_time=schedule_time,
+        )
+
+    except campaign_backends.CampaignBackendError as error:
+        messages.error(request, error.message)
+        return
+
+    log(
+        page,
+        "wagtail_newsletter.schedule_campaign",
+        data={"schedule_time": schedule_time},
+    )
+
+    when = f"{localize(schedule_time)} {schedule_time.tzname()}"
+    messages.success(request, f"Campaign scheduled to send at {when}")
