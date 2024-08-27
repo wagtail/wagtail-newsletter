@@ -67,3 +67,6 @@ def get_backend() -> CampaignBackend:
 
 class CampaignBackendError(Exception):
     """The campaign backend encountered an error"""
+
+    def __init__(self, message):
+        self.message = message

@@ -22,8 +22,8 @@ def save_campaign(request, page: NewsletterPageMixin) -> None:
             html=version.get_newsletter_html(),
         )
 
-    except campaign_backends.CampaignBackendError:
-        messages.error(request, "Failed to save newsletter campaign")
+    except campaign_backends.CampaignBackendError as error:
+        messages.error(request, error.message)
         return
 
     page.newsletter_campaign = campaign_id
@@ -55,10 +55,16 @@ def send_test_email(request, page: NewsletterPageMixin) -> None:
     save_campaign(request, page)
 
     backend = campaign_backends.get_backend()
-    backend.send_test_email(
-        campaign_id=page.newsletter_campaign,
-        email=email,
-    )
+
+    try:
+        backend.send_test_email(
+            campaign_id=page.newsletter_campaign,
+            email=email,
+        )
+
+    except campaign_backends.CampaignBackendError as error:
+        messages.error(request, error.message)
+        return
 
     log(page, "wagtail_newsletter.send_test_email", data={"email": email})
 
@@ -69,7 +75,13 @@ def send_campaign(request, page: NewsletterPageMixin) -> None:
     save_campaign(request, page)
 
     backend = campaign_backends.get_backend()
-    backend.send_campaign(page.newsletter_campaign)
+
+    try:
+        backend.send_campaign(page.newsletter_campaign)
+
+    except campaign_backends.CampaignBackendError as error:
+        messages.error(request, error.message)
+        return
 
     log(page, "wagtail_newsletter.send_campaign")
 

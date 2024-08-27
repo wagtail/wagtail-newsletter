@@ -58,7 +58,7 @@ def test_save_campaign(
 def test_save_campaign_failed_to_save(
     page: ArticlePage, admin_client: Client, memory_backend: MemoryCampaignBackend
 ):
-    memory_backend.save_campaign = Mock(side_effect=CampaignBackendError)
+    memory_backend.save_campaign = Mock(side_effect=CampaignBackendError("Mock error"))
 
     url = reverse("wagtailadmin_pages:edit", kwargs={"page_id": page.pk})
     data = {
@@ -68,7 +68,7 @@ def test_save_campaign_failed_to_save(
     }
     response = admin_client.post(url, data, follow=True)
 
-    assert "Failed to save newsletter campaign" in response.content.decode()
+    assert "Mock error" in response.content.decode()
 
     page.refresh_from_db()
     assert page.newsletter_campaign == ""
@@ -129,6 +129,27 @@ def test_send_test_email_invalid_email(
     assert memory_backend.send_test_email.mock_calls == []
 
 
+def test_send_test_email_failed_to_send(
+    page: ArticlePage, admin_client: Client, memory_backend: MemoryCampaignBackend
+):
+    memory_backend.save_campaign = Mock(return_value=CAMPAIGN_ID)
+    memory_backend.get_campaign = Mock(return_value=Mock(url=CAMPAIGN_URL))
+    memory_backend.send_test_email = Mock(
+        side_effect=CampaignBackendError("Mock error")
+    )
+
+    url = reverse("wagtailadmin_pages:edit", kwargs={"page_id": page.pk})
+    data = {
+        "title": page.title,
+        "slug": page.slug,
+        "newsletter-action": "send_test_email",
+        "newsletter-test-email": EMAIL,
+    }
+    response = admin_client.post(url, data, follow=True)
+
+    assert "Mock error" in response.content.decode()
+
+
 def test_send_campaign(
     page: ArticlePage, admin_client: Client, memory_backend: MemoryCampaignBackend
 ):
@@ -156,6 +177,24 @@ def test_send_campaign(
         call(campaign_id="", recipients=None, subject=page.title, html=ANY)
     ]
     assert memory_backend.send_campaign.mock_calls == [call(CAMPAIGN_ID)]
+
+
+def test_send_campaign_failed_to_send(
+    page: ArticlePage, admin_client: Client, memory_backend: MemoryCampaignBackend
+):
+    memory_backend.save_campaign = Mock(return_value=CAMPAIGN_ID)
+    memory_backend.get_campaign = Mock(return_value=Mock(url=CAMPAIGN_URL))
+    memory_backend.send_campaign = Mock(side_effect=CampaignBackendError("Mock error"))
+
+    url = reverse("wagtailadmin_pages:edit", kwargs={"page_id": page.pk})
+    data = {
+        "title": page.title,
+        "slug": page.slug,
+        "newsletter-action": "send_campaign",
+    }
+    response = admin_client.post(url, data, follow=True)
+
+    assert "Mock error" in response.content.decode()
 
 
 @pytest.mark.parametrize(
