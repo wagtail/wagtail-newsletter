@@ -20,6 +20,8 @@ from . import Campaign, CampaignBackend, CampaignBackendError
 
 
 CAMPAIGN_STATUS_DRAFT = "save"
+CAMPAIGN_STATUS_SCHEDULED = "schedule"
+CAMPAIGN_STATUS_PAUSED = "paused"
 
 logger = logging.getLogger(__name__)
 
@@ -32,15 +34,23 @@ class MailchimpCampaign(Campaign):
     status: str
 
     @property
-    def sent(self) -> bool:
-        return self.status != CAMPAIGN_STATUS_DRAFT
+    def is_scheduled(self) -> bool:
+        return self.status == CAMPAIGN_STATUS_SCHEDULED
+
+    @property
+    def is_sent(self) -> bool:
+        return self.status not in [
+            CAMPAIGN_STATUS_DRAFT,
+            CAMPAIGN_STATUS_SCHEDULED,
+            CAMPAIGN_STATUS_PAUSED,
+        ]
 
     @property
     def url(self) -> str:
         server = self.backend.client.api_client.server
         base_url = f"https://{server}.admin.mailchimp.com"
 
-        if self.sent:
+        if self.is_sent:
             return f"{base_url}/reports/summary?id={self.web_id}"
 
         else:
@@ -62,7 +72,10 @@ class MailchimpCampaign(Campaign):
             "clicks": data["clicks"]["unique_clicks"],
         }
         if data["send_time"]:
-            report["send_time"] = datetime.fromisoformat(data["send_time"])
+            try:
+                report["send_time"] = datetime.fromisoformat(data["send_time"])
+            except ValueError:
+                pass
         return report
 
 
@@ -256,6 +269,15 @@ class MailchimpCampaignBackend(CampaignBackend):
         except ApiClientError as error:
             _log_and_raise(
                 error, "Error while scheduling campaign", campaign_id=campaign_id
+            )
+
+    def unschedule_campaign(self, campaign_id: str) -> None:
+        try:
+            self.client.campaigns.unschedule(campaign_id)
+
+        except ApiClientError as error:
+            _log_and_raise(
+                error, "Error while unscheduling campaign", campaign_id=campaign_id
             )
 
 

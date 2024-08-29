@@ -27,6 +27,7 @@ def register_admin_urls():
             name="javascript_catalog",
         ),
         path("recipients/", views.recipients, name="recipients"),
+        path("pages/<int:page_id>/unschedule/", views.unschedule, name="unschedule"),
     ]
 
     return [
@@ -127,4 +128,9 @@ def register_log_actions(actions):
         "wagtail_newsletter.schedule_campaign",
         "Newsletter: Schedule campaign",
         "Newsletter: Campaign scheduled",
+    )
+    actions.register_action(
+        "wagtail_newsletter.unschedule_campaign",
+        "Newsletter: Unschedule campaign",
+        "Newsletter: Campaign unscheduled",
     )

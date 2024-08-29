@@ -274,27 +274,44 @@ def test_update_campaign_handle_update_exception(backend: MockMailchimpCampaignB
 
 
 @pytest.mark.parametrize(
-    "data,sent,url",
+    "data,is_scheduled,is_sent,url",
     [
         (
             {"web_id": CAMPAIGN_WEB_ID, "status": "save"},
+            False,
+            False,
+            f"{WEB_BASE_URL}/campaigns/edit?id={CAMPAIGN_WEB_ID}",
+        ),
+        (
+            {"web_id": CAMPAIGN_WEB_ID, "status": "schedule"},
+            True,
+            False,
+            f"{WEB_BASE_URL}/campaigns/edit?id={CAMPAIGN_WEB_ID}",
+        ),
+        (
+            {"web_id": CAMPAIGN_WEB_ID, "status": "paused"},
+            False,
             False,
             f"{WEB_BASE_URL}/campaigns/edit?id={CAMPAIGN_WEB_ID}",
         ),
         (
             {"web_id": CAMPAIGN_WEB_ID, "status": "sent"},
+            False,
             True,
             f"{WEB_BASE_URL}/reports/summary?id={CAMPAIGN_WEB_ID}",
         ),
     ],
 )
-def test_get_campaign(backend: MockMailchimpCampaignBackend, data, sent, url):
+def test_get_campaign(
+    backend: MockMailchimpCampaignBackend, data, is_scheduled, is_sent, url
+):
     backend.client.campaigns.get.return_value = data
     backend.client.api_client.server = WEB_SERVER
     campaign = backend.get_campaign(CAMPAIGN_ID)
     assert campaign is not None
     assert backend.client.campaigns.get.mock_calls == [call(CAMPAIGN_ID)]
-    assert campaign.sent == sent
+    assert campaign.is_scheduled == is_scheduled
+    assert campaign.is_sent == is_sent
     assert campaign.url == url
 
 
@@ -451,3 +468,16 @@ def test_schedule_campaign_invalid_time(backend: MockMailchimpCampaignBackend):
         backend.schedule_campaign(CAMPAIGN_ID, SCHEDULE_TIME + timedelta(minutes=1))
 
     assert error.match("schedule_time may only be in 15 minute intervals")
+
+
+def test_unschedule_campaign(backend: MockMailchimpCampaignBackend):
+    backend.unschedule_campaign(CAMPAIGN_ID)
+    assert backend.client.campaigns.unschedule.mock_calls == [call(CAMPAIGN_ID)]
+
+
+def test_unschedule_campaign_failure(backend: MockMailchimpCampaignBackend):
+    backend.client.campaigns.unschedule.side_effect = ApiClientError("", 400)
+    with pytest.raises(CampaignBackendError) as error:
+        backend.unschedule_campaign(CAMPAIGN_ID)
+
+    assert error.match("Error while unscheduling campaign")

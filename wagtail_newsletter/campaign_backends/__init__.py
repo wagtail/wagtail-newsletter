@@ -16,7 +16,11 @@ DEFAULT_CAMPAIGN_BACKEND = (
 class Campaign(ABC):
     @property
     @abstractmethod
-    def sent(self) -> bool: ...
+    def is_scheduled(self) -> bool: ...
+
+    @property
+    @abstractmethod
+    def is_sent(self) -> bool: ...
 
     @property
     @abstractmethod
@@ -58,6 +62,9 @@ class CampaignBackend(ABC):
 
     @abstractmethod
     def schedule_campaign(self, campaign_id: str, schedule_time: datetime) -> None: ...
+
+    @abstractmethod
+    def unschedule_campaign(self, campaign_id: str) -> None: ...
 
 
 def get_backend() -> CampaignBackend:

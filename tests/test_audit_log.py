@@ -33,6 +33,7 @@ def backend(memory_backend: MemoryCampaignBackend):
     memory_backend.send_test_email = Mock()
     memory_backend.send_campaign = Mock()
     memory_backend.schedule_campaign = Mock()
+    memory_backend.unschedule_campaign = Mock()
 
 
 def page_ptr(page: ArticlePage) -> Page:
@@ -106,4 +107,14 @@ def test_schedule_campaign(page: ArticlePage, admin_client: Client, admin_user):
     assert get_log_entries() == [
         (page_ptr(page), admin_user, "wagtail_newsletter.schedule_campaign"),
         (page_ptr(page), admin_user, "wagtail_newsletter.save_campaign"),
+    ]
+
+
+def test_unschedule_campaign(page: ArticlePage, admin_client: Client, admin_user):
+    admin_client.post(
+        reverse("wagtail_newsletter:unschedule", kwargs={"page_id": page.pk})
+    )
+
+    assert get_log_entries() == [
+        (page_ptr(page), admin_user, "wagtail_newsletter.unschedule_campaign"),
     ]

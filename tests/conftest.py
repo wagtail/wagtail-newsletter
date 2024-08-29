@@ -54,6 +54,9 @@ class MemoryCampaignBackend(CampaignBackend):
     def schedule_campaign(self, campaign_id: str, schedule_time: datetime):
         raise NotImplementedError
 
+    def unschedule_campaign(self, campaign_id: str):
+        raise NotImplementedError
+
 
 @pytest.fixture(autouse=True)
 def memory_backend(monkeypatch: pytest.MonkeyPatch):

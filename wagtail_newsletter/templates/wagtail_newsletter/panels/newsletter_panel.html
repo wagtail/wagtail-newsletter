@@ -12,7 +12,7 @@
         </div>
     {% endif %}
 
-    {% if sent %}
+    {% if campaign.is_sent %}
         {% block campaign_status %}
             <p>
                 <b>Status:</b>
@@ -48,6 +48,70 @@
                 </p>
             {% endif %}
         {% endblock %}
+
+    {% elif campaign.is_scheduled %}
+
+        {% if report %}
+            <p>
+                <b>Status:</b>
+                {{ campaign.status }}
+            </p>
+
+            <p>
+                <b>Send time:</b>
+                {{ report.send_time }}
+                (in {{ report.send_time|timeuntil }}).
+            </p>
+        {% endif %}
+
+        {% if has_action_permission.unschedule_campaign %}
+            <div class="wn-panel--buttons">
+                <button
+                    type="button"
+                    class="button no button-longrunning"
+                    data-a11y-dialog-show="wn-unschedule-dialog"
+                    data-controller="w-progress"
+                    data-action="wn-submit:unschedule_campaign@window->w-progress#activate"
+                >
+                    {% icon name="spinner" %}
+                    Unschedule
+                </button>
+
+                {% fragment as unschedule_dialog_subtitle %}
+                    The campaign is scheduled to send at
+                    {{ report.send_time }} (in {{ report.send_time|timeuntil }}).
+                    This action will unschedule the sending.
+                {% endfragment %}
+
+                {% dialog icon_name="mail" id="wn-unschedule-dialog" title="Unschedule campaign" subtitle=unschedule_dialog_subtitle %}
+                    <form method="post" action="{% url "wagtail_newsletter:unschedule" page_id=self.instance.id %}">
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="button button-primary no"
+                            name="newsletter-action"
+                            value="unschedule_campaign"
+                            data-controller="wn-submit"
+                            data-action="
+                                wn-submit#sendEvent
+                                w-dialog#hide
+                            "
+                        >
+                            Unschedule
+                        </button>
+
+                        <button
+                            type="button"
+                            class="button button-secondary"
+                            data-action="w-dialog#hide"
+                        >
+                            Cancel
+                        </button>
+                    </form>
+                {% enddialog %}
+            </div>
+        {% endif %}
 
     {% else %}
 
