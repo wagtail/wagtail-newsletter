@@ -4,7 +4,6 @@ from django.contrib.auth.models import Permission
 from django.urls import include, path
 from django.views.i18n import JavaScriptCatalog
 from wagtail import hooks
-from wagtail.admin import messages
 from wagtail.log_actions import LogContext
 from wagtail.models import Page
 
@@ -79,11 +78,7 @@ def redirect_to_campaign_page(request, page: Page):
 
     page = cast(NewsletterPageMixin, page)
 
-    if not page.has_newsletter_permission(request.user, action):
-        messages.error(
-            request,
-            f"You do not have permission to perform the newsletter action {action!r}.",
-        )
+    if not views.has_permission_or_show_message(request, page, action):
         return
 
     with LogContext(user=request.user):

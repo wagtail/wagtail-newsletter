@@ -12,6 +12,18 @@ from . import campaign_backends, get_recipients_model_string
 from .models import NewsletterPageMixin, NewsletterRecipientsBase
 
 
+def has_permission_or_show_message(request, page, action):
+    if page.has_newsletter_permission(request.user, action):
+        return True
+
+    else:
+        messages.error(
+            request,
+            f"You do not have permission to perform the newsletter action {action!r}.",
+        )
+        return False
+
+
 def recipients(request):
     model = apps.get_model(get_recipients_model_string())
     recipients: NewsletterRecipientsBase = get_object_or_404(
@@ -31,16 +43,17 @@ def recipients(request):
 def unschedule(request, page_id):
     page = cast(NewsletterPageMixin, get_object_or_404(Page, id=page_id).specific)
 
-    backend = campaign_backends.get_backend()
+    if has_permission_or_show_message(request, page, "unschedule_campaign"):
+        backend = campaign_backends.get_backend()
 
-    try:
-        backend.unschedule_campaign(page.newsletter_campaign)
+        try:
+            backend.unschedule_campaign(page.newsletter_campaign)
 
-    except campaign_backends.CampaignBackendError as error:
-        messages.error(request, error.message)
+        except campaign_backends.CampaignBackendError as error:
+            messages.error(request, error.message)
 
-    else:
-        log(page, "wagtail_newsletter.unschedule_campaign")
-        messages.success(request, "Campaign successfully unscheduled")
+        else:
+            log(page, "wagtail_newsletter.unschedule_campaign")
+            messages.success(request, "Campaign successfully unscheduled")
 
     return redirect("wagtailadmin_pages:edit", page_id=page_id)
