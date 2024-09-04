@@ -89,6 +89,14 @@
                 {% endfragment %}
 
                 {% dialog icon_name="mail" id="wn-unschedule-dialog" title="Unschedule campaign" subtitle=unschedule_dialog_subtitle %}
+                    <div class="help-block help-warning">
+                        {% icon name="warning" %}
+                        <p>
+                            If you proceed, any unsaved changes in the current
+                            window will be lost.
+                        </p>
+                    </div>
+
                     <form method="post" action="{% url "wagtail_newsletter:unschedule" page_id=self.instance.id %}">
                         {% csrf_token %}
 
