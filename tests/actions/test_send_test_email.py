@@ -66,7 +66,7 @@ def test_send_test_email_invalid_email(
 
     html = response.content.decode()
     assert f"Page &#x27;{page.title}&#x27; has been updated" in html
-    assert "&#x27;email&#x27;: Enter a valid email address." in html
+    assert "Email address: Enter a valid email address." in html
 
     assert memory_backend.save_campaign.mock_calls == []
     assert memory_backend.send_test_email.mock_calls == []

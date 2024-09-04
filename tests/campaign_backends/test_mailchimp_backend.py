@@ -467,7 +467,7 @@ def test_schedule_campaign_invalid_time(backend: MockMailchimpCampaignBackend):
     with pytest.raises(CampaignBackendError) as error:
         backend.schedule_campaign(CAMPAIGN_ID, SCHEDULE_TIME + timedelta(minutes=1))
 
-    assert error.match("schedule_time may only be in 15 minute intervals")
+    assert error.match("Schedule time must be in 15 minute intervals")
 
 
 def test_unschedule_campaign(backend: MockMailchimpCampaignBackend):

@@ -47,7 +47,7 @@ def send_test_email(request, page: NewsletterPageMixin) -> None:
     if not form.is_valid():
         for field, errors in form.errors.items():
             for message in errors:
-                messages.error(request, f"{field!r}: {message}")
+                messages.error(request, f"{form[field].label}: {message}")
         return
 
     email = form.cleaned_data["email"]
@@ -93,7 +93,7 @@ def schedule_campaign(request, page: NewsletterPageMixin) -> None:
     if not form.is_valid():
         for field, errors in form.errors.items():
             for message in errors:
-                messages.error(request, f"{field!r}: {message}")
+                messages.error(request, f"{form[field].label}: {message}")
         return
 
     schedule_time = form.cleaned_data["schedule_time"]

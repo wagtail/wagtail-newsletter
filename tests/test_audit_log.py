@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, time, timedelta
 from unittest.mock import Mock
 
 import pytest
@@ -16,7 +16,6 @@ pytestmark = pytest.mark.django_db
 CAMPAIGN_ID = "test-campaign-id"
 CAMPAIGN_URL = "http://campaign.example.com"
 EMAIL = "test@example.com"
-SCHEDULE_TIME = datetime(2024, 8, 10, 16, 30, tzinfo=timezone.utc)
 
 
 @pytest.fixture
@@ -95,7 +94,7 @@ def test_send_campaign(page: ArticlePage, admin_client: Client, admin_user):
 
 def test_schedule_campaign(page: ArticlePage, admin_client: Client, admin_user):
     url = reverse("wagtailadmin_pages:edit", kwargs={"page_id": page.pk})
-    schedule_time = SCHEDULE_TIME.replace(tzinfo=None)
+    schedule_time = datetime.combine(date.today() + timedelta(days=1), time(12))
     data = {
         "title": page.title,
         "slug": page.slug,

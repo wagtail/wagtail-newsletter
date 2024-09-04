@@ -3,6 +3,7 @@ import logging
 from copy import copy
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
 from typing import Any, NoReturn, Optional, cast
 
 from django.conf import settings
@@ -19,9 +20,11 @@ from ..models import NewsletterRecipientsBase
 from . import Campaign, CampaignBackend, CampaignBackendError
 
 
-CAMPAIGN_STATUS_DRAFT = "save"
-CAMPAIGN_STATUS_SCHEDULED = "schedule"
-CAMPAIGN_STATUS_PAUSED = "paused"
+class CampaignStatus(Enum):
+    DRAFT = "save"
+    SCHEDULED = "schedule"
+    PAUSED = "paused"
+
 
 logger = logging.getLogger(__name__)
 
@@ -35,14 +38,14 @@ class MailchimpCampaign(Campaign):
 
     @property
     def is_scheduled(self) -> bool:
-        return self.status == CAMPAIGN_STATUS_SCHEDULED
+        return self.status == CampaignStatus.SCHEDULED.value
 
     @property
     def is_sent(self) -> bool:
         return self.status not in [
-            CAMPAIGN_STATUS_DRAFT,
-            CAMPAIGN_STATUS_SCHEDULED,
-            CAMPAIGN_STATUS_PAUSED,
+            CampaignStatus.DRAFT.value,
+            CampaignStatus.SCHEDULED.value,
+            CampaignStatus.PAUSED.value,
         ]
 
     @property
@@ -251,14 +254,15 @@ class MailchimpCampaignBackend(CampaignBackend):
             )
 
     def schedule_campaign(self, campaign_id: str, schedule_time: datetime) -> None:
-        rounded_minute = (schedule_time.minute // 15) * 15
+        rounded_minute = schedule_time.minute - (schedule_time.minute % 15)
         rounded_time = schedule_time.replace(
             minute=rounded_minute, second=0, microsecond=0
         )
         if rounded_time != schedule_time:
             raise CampaignBackendError(
-                "schedule_time may only be in 15 minute intervals,"
-                " e.g. 13:15 not 13:10."
+                "Schedule time must be in 15 minute intervals,"
+                f" e.g. {schedule_time.hour}:{rounded_minute} "
+                f"not {schedule_time.hour}:{schedule_time.minute}."
             )
 
         try:

@@ -3,9 +3,10 @@ from typing import cast
 from django.apps import apps
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.html import format_html
 from django.views.decorators.http import require_http_methods
 from wagtail.admin import messages
-from wagtail.log_actions import log
+from wagtail.log_actions import log, registry
 from wagtail.models import Page
 
 from . import campaign_backends, get_recipients_model_string
@@ -17,10 +18,11 @@ def has_permission_or_show_message(request, page, action):
         return True
 
     else:
-        messages.error(
-            request,
-            f"You do not have permission to perform the newsletter action {action!r}.",
+        label = registry.get_action_label(f"wagtail_newsletter.{action}")
+        message = format_html(
+            "You do not have permission to perform the action {}.", label
         )
+        messages.error(request, message)
         return False
 
 

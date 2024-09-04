@@ -24,11 +24,7 @@
                     <p>
                         <b>Send time:</b>
                         {{ report.send_time }}
-                        {% if campaign.status == "schedule" %}
-                            (in {{ report.send_time|timeuntil }}).
-                        {% else %}
-                            ({{ report.send_time|timesince }} ago).
-                        {% endif %}
+                        ({{ report.send_time|timesince }} ago).
                     </p>
                 {% endif %}
 
@@ -50,6 +46,15 @@
         {% endblock %}
 
     {% elif campaign.is_scheduled %}
+
+        <div class="help-block help-info">
+            {% icon name="help" %}
+            <p>
+                Further changes to the page won't affect the scheduled
+                campaign. To make changes to the campaign, unschedule it first,
+                then make your changes and schedule it again.
+            </p>
+        </div>
 
         {% if report %}
             <p>

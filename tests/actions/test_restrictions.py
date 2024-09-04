@@ -16,13 +16,13 @@ CAMPAIGN_URL = "http://campaign.example.com"
 
 
 @pytest.mark.parametrize(
-    "action",
+    "action,label",
     [
-        "save_campaign",
-        "send_test_email",
-        "send_campaign",
-        "schedule_campaign",
-        "unschedule_campaign",
+        ("save_campaign", "Newsletter: Save campaign"),
+        ("send_test_email", "Newsletter: Send test email"),
+        ("send_campaign", "Newsletter: Send campaign"),
+        ("schedule_campaign", "Newsletter: Schedule campaign"),
+        ("unschedule_campaign", "Newsletter: Unschedule campaign"),
     ],
 )
 def test_action_restricted(
@@ -31,6 +31,7 @@ def test_action_restricted(
     memory_backend: MemoryCampaignBackend,
     monkeypatch: pytest.MonkeyPatch,
     action: str,
+    label: str,
 ):
     memory_backend.save_campaign = Mock(return_value=CAMPAIGN_ID)
     memory_backend.get_campaign = Mock(return_value=Mock(url=CAMPAIGN_URL))
@@ -63,10 +64,7 @@ def test_action_restricted(
     if action != "unschedule_campaign":
         assert f"Page &#x27;{page.title}&#x27; has been updated" in html
 
-    assert (
-        "You do not have permission to perform "
-        f"the newsletter action &#x27;{action}&#x27;" in html
-    )
+    assert f"You do not have permission to perform the action {label}" in html
 
     assert memory_backend.save_campaign.mock_calls == []
     assert memory_backend.send_test_email.mock_calls == []
