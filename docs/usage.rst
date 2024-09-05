@@ -29,6 +29,18 @@ When you're ready to unleash the campaign upon your audience, click *Send
 campaign* in the *Newsletter* editor tab. This will save a page revision,
 upload the content to the campaign provider, and trigger campaign sending.
 
+Schedule campaign
+-----------------
+
+If you'd like to send the campaign later, at a time when the emails are more
+likely to be opened, you can click on *Schedule campaign* in the *Newsletter*
+tab. If you're using the Mailchimp backend, make sure to select a time that is
+a multiple of 15 minutes.
+
+After a campaign is scheduled, and before it's time to send it, you can still
+abort: click on the *Unschedule* button and the campaign will revert to a
+draft.
+
 Save campaign without sending
 -----------------------------
 
