@@ -161,6 +161,21 @@ window.wagtail.app.register("wn-submit",
     sendEvent(event) {
       const eventName = this.button.value;
       this.dispatch(eventName, { detail: { event } });
+
+      /* In the case of the "Unschedule" button, if the user has unsaved
+       * changes, and is presented with the browser dialog asking "Are you sure
+       * you want to leave this page?", and they cancel the action, the
+       * "Unschedule" button will be stuck with a spinner until the
+       * ProgressController times out. Better to cancel the dialog because
+       * we've already warned the user that they will lose any unsaved changes.
+       */
+      window.addEventListener(
+        'w-unsaved:confirm',
+        (event) => {
+          event.preventDefault();
+        },
+        { once: true },
+      );
     }
   }
 );

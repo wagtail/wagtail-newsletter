@@ -261,8 +261,8 @@ class MailchimpCampaignBackend(CampaignBackend):
         if rounded_time != schedule_time:
             raise CampaignBackendError(
                 "Schedule time must be in 15 minute intervals,"
-                f" e.g. {schedule_time.hour}:{rounded_minute} "
-                f"not {schedule_time.hour}:{schedule_time.minute}."
+                f" e.g. {schedule_time.hour:02d}:{rounded_minute:02d} "
+                f"not {schedule_time.hour:02d}:{schedule_time.minute:02d}."
             )
 
         try:
