@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import Any, Optional
 
 from django.conf import settings
@@ -15,7 +16,11 @@ DEFAULT_CAMPAIGN_BACKEND = (
 class Campaign(ABC):
     @property
     @abstractmethod
-    def sent(self) -> bool: ...
+    def is_scheduled(self) -> bool: ...
+
+    @property
+    @abstractmethod
+    def is_sent(self) -> bool: ...
 
     @property
     @abstractmethod
@@ -55,6 +60,12 @@ class CampaignBackend(ABC):
     @abstractmethod
     def send_campaign(self, campaign_id: str) -> None: ...
 
+    @abstractmethod
+    def schedule_campaign(self, campaign_id: str, schedule_time: datetime) -> None: ...
+
+    @abstractmethod
+    def unschedule_campaign(self, campaign_id: str) -> None: ...
+
 
 def get_backend() -> CampaignBackend:
     backend_class = import_string(
@@ -67,3 +78,6 @@ def get_backend() -> CampaignBackend:
 
 class CampaignBackendError(Exception):
     """The campaign backend encountered an error"""
+
+    def __init__(self, message):
+        self.message = message

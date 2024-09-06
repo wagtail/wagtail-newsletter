@@ -6,7 +6,7 @@ newsletter campaigns for individual Wagtail content pages. It comes with a
 Mailchimp_ backend out of the box, and includes support for MJML_ to render
 email-compatible HTML.
 
-.. image:: https://github.com/wagtail/wagtail-newsletter/assets/27617/35fd29fc-730d-4e69-a886-d0d8fe4ac182
+.. image:: /_static/screenshot.png
    :width: 600px
 
 .. _Mailchimp: https://mailchimp.com

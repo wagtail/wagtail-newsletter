@@ -4,7 +4,6 @@ from django.contrib.auth.models import Permission
 from django.urls import include, path
 from django.views.i18n import JavaScriptCatalog
 from wagtail import hooks
-from wagtail.admin import messages
 from wagtail.log_actions import LogContext
 from wagtail.models import Page
 
@@ -27,6 +26,7 @@ def register_admin_urls():
             name="javascript_catalog",
         ),
         path("recipients/", views.recipients, name="recipients"),
+        path("pages/<int:page_id>/unschedule/", views.unschedule, name="unschedule"),
     ]
 
     return [
@@ -78,11 +78,7 @@ def redirect_to_campaign_page(request, page: Page):
 
     page = cast(NewsletterPageMixin, page)
 
-    if not page.has_newsletter_permission(request.user, action):
-        messages.error(
-            request,
-            f"You do not have permission to perform the newsletter action {action!r}.",
-        )
+    if not views.has_permission_or_show_message(request, page, action):
         return
 
     with LogContext(user=request.user):
@@ -94,6 +90,9 @@ def redirect_to_campaign_page(request, page: Page):
 
         if action == "send_campaign":
             actions.send_campaign(request, page)
+
+        if action == "schedule_campaign":
+            actions.schedule_campaign(request, page)
 
 
 @hooks.register("after_copy_page")  # type: ignore
@@ -119,4 +118,14 @@ def register_log_actions(actions):
         "wagtail_newsletter.send_campaign",
         "Newsletter: Send campaign",
         "Newsletter: Campaign sent",
+    )
+    actions.register_action(
+        "wagtail_newsletter.schedule_campaign",
+        "Newsletter: Schedule campaign",
+        "Newsletter: Campaign scheduled",
+    )
+    actions.register_action(
+        "wagtail_newsletter.unschedule_campaign",
+        "Newsletter: Unschedule campaign",
+        "Newsletter: Campaign unscheduled",
     )

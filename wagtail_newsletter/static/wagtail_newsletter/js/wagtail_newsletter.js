@@ -2,6 +2,7 @@ window.wagtail.app.register("wn-panel",
   class extends window.StimulusModule.Controller {
     static targets = [
       "sendButton",
+      "scheduleButton",
     ]
 
     static values = {
@@ -14,40 +15,83 @@ window.wagtail.app.register("wn-panel",
       );
     }
 
-    get sendRecipientsRequiredDialog() {
+    get scheduleButtonProgress() {
+      return this.application.getControllerForElementAndIdentifier(
+        this.scheduleButtonTarget, "w-progress"
+      );
+    }
+
+    get recipientsRequiredDialog() {
       return this.application.getControllerForElementAndIdentifier(
         document.querySelector("#wn-recipients-required"), "w-dialog"
       );
     }
 
-    async sendCampaign() {
+    /*
+     * Get the currently selected `newsletter_recipients` ID. If no recipients
+     * are selected, show a dialog with an error message.
+     */
+    getRecipients() {
       const form = this.element.closest("form");
       const recipientsId = form.querySelector("[name=newsletter_recipients]").value;
       if (!recipientsId) {
-        this.sendRecipientsRequiredDialog.show();
+        this.recipientsRequiredDialog.show();
         return;
       }
+      return recipientsId;
+    }
 
-      this.sendButtonProgress.activate();
-      const url = new URL(this.recipientsUrlValue, window.location.href);
-      url.searchParams.set("pk", recipientsId);
-
+    async getRecipientsData(recipientsId) {
       try {
+        const url = new URL(this.recipientsUrlValue, window.location.href);
+        url.searchParams.set("pk", recipientsId);
         const response = await fetch(url);
         if (response.status < 200 || response.status >= 300) {
           throw new Error(`Response status is ${response.status} ${response.statusText}`);
         }
-        const data = await response.json();
-        this.dispatch("showSendDialog", { detail: data });
+        return await response.json();
       }
       catch (error) {
         console.error(error);
         alert("Error fetching recipients");
       }
-      finally {
-        // https://github.com/wagtail/wagtail/issues/12057
-        this.sendButtonProgress.loadingValue = false;
+    }
+
+    /*
+     * Work-around for https://github.com/wagtail/wagtail/issues/12057
+     */
+    deactivateProgress(progress) {
+      progress.loadingValue = false;
+    }
+
+    async sendCampaign() {
+      const recipientsId = this.getRecipients();
+      if (!recipientsId) {
+        return;
       }
+
+      this.sendButtonProgress.activate();
+      const detail = await this.getRecipientsData(recipientsId);
+      if (detail) {
+        this.dispatch("showSendDialog", { detail });
+      }
+
+      this.deactivateProgress(this.sendButtonProgress);
+    }
+
+    async scheduleCampaign() {
+      const recipientsId = this.getRecipients();
+      if (!recipientsId) {
+        return;
+      }
+
+      this.scheduleButtonProgress.activate();
+      const detail = await this.getRecipientsData(recipientsId);
+      if (detail) {
+        this.dispatch("showScheduleDialog", { detail });
+      }
+
+      this.deactivateProgress(this.scheduleButtonProgress);
     }
   }
 );
@@ -117,6 +161,21 @@ window.wagtail.app.register("wn-submit",
     sendEvent(event) {
       const eventName = this.button.value;
       this.dispatch(eventName, { detail: { event } });
+
+      /* In the case of the "Unschedule" button, if the user has unsaved
+       * changes, and is presented with the browser dialog asking "Are you sure
+       * you want to leave this page?", and they cancel the action, the
+       * "Unschedule" button will be stuck with a spinner until the
+       * ProgressController times out. Better to cancel the dialog because
+       * we've already warned the user that they will lose any unsaved changes.
+       */
+      window.addEventListener(
+        'w-unsaved:confirm',
+        (event) => {
+          event.preventDefault();
+        },
+        { once: true },
+      );
     }
   }
 );

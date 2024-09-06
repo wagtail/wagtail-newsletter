@@ -1,6 +1,6 @@
 import logging
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from unittest.mock import ANY, Mock, call
 
@@ -32,6 +32,7 @@ CAMPAIGN_WEB_ID = "test-web-id"
 NEW_CAMPAIGN_ID = "test-new-campaign-id"
 API_ERROR_TEXT = "something failed"
 EMAIL = "test@example.com"
+SCHEDULE_TIME = datetime(2024, 8, 10, 16, 30, tzinfo=timezone.utc)
 
 
 class MockMailchimpCampaignBackend(MailchimpCampaignBackend):
@@ -273,27 +274,44 @@ def test_update_campaign_handle_update_exception(backend: MockMailchimpCampaignB
 
 
 @pytest.mark.parametrize(
-    "data,sent,url",
+    "data,is_scheduled,is_sent,url",
     [
         (
             {"web_id": CAMPAIGN_WEB_ID, "status": "save"},
+            False,
+            False,
+            f"{WEB_BASE_URL}/campaigns/edit?id={CAMPAIGN_WEB_ID}",
+        ),
+        (
+            {"web_id": CAMPAIGN_WEB_ID, "status": "schedule"},
+            True,
+            False,
+            f"{WEB_BASE_URL}/campaigns/edit?id={CAMPAIGN_WEB_ID}",
+        ),
+        (
+            {"web_id": CAMPAIGN_WEB_ID, "status": "paused"},
+            False,
             False,
             f"{WEB_BASE_URL}/campaigns/edit?id={CAMPAIGN_WEB_ID}",
         ),
         (
             {"web_id": CAMPAIGN_WEB_ID, "status": "sent"},
+            False,
             True,
             f"{WEB_BASE_URL}/reports/summary?id={CAMPAIGN_WEB_ID}",
         ),
     ],
 )
-def test_get_campaign(backend: MockMailchimpCampaignBackend, data, sent, url):
+def test_get_campaign(
+    backend: MockMailchimpCampaignBackend, data, is_scheduled, is_sent, url
+):
     backend.client.campaigns.get.return_value = data
     backend.client.api_client.server = WEB_SERVER
     campaign = backend.get_campaign(CAMPAIGN_ID)
     assert campaign is not None
     assert backend.client.campaigns.get.mock_calls == [call(CAMPAIGN_ID)]
-    assert campaign.sent == sent
+    assert campaign.is_scheduled == is_scheduled
+    assert campaign.is_sent == is_sent
     assert campaign.url == url
 
 
@@ -423,10 +441,43 @@ def test_send_campaign(backend: MockMailchimpCampaignBackend):
 
 
 def test_send_campaign_failure(backend: MockMailchimpCampaignBackend):
-    backend.send_campaign(CAMPAIGN_ID)
-    assert backend.client.campaigns.send.mock_calls == [call(CAMPAIGN_ID)]
     backend.client.campaigns.send.side_effect = ApiClientError("", 400)
     with pytest.raises(CampaignBackendError) as error:
         backend.send_campaign(campaign_id=CAMPAIGN_ID)
 
     assert error.match("Error while sending campaign")
+
+
+def test_schedule_campaign(backend: MockMailchimpCampaignBackend):
+    backend.schedule_campaign(CAMPAIGN_ID, SCHEDULE_TIME)
+    assert backend.client.campaigns.schedule.mock_calls == [
+        call(CAMPAIGN_ID, {"schedule_time": SCHEDULE_TIME.isoformat()})
+    ]
+
+
+def test_schedule_campaign_failure(backend: MockMailchimpCampaignBackend):
+    backend.client.campaigns.schedule.side_effect = ApiClientError("", 400)
+    with pytest.raises(CampaignBackendError) as error:
+        backend.schedule_campaign(CAMPAIGN_ID, SCHEDULE_TIME)
+
+    assert error.match("Error while scheduling campaign")
+
+
+def test_schedule_campaign_invalid_time(backend: MockMailchimpCampaignBackend):
+    with pytest.raises(CampaignBackendError) as error:
+        backend.schedule_campaign(CAMPAIGN_ID, SCHEDULE_TIME + timedelta(minutes=1))
+
+    assert error.match("Schedule time must be in 15 minute intervals")
+
+
+def test_unschedule_campaign(backend: MockMailchimpCampaignBackend):
+    backend.unschedule_campaign(CAMPAIGN_ID)
+    assert backend.client.campaigns.unschedule.mock_calls == [call(CAMPAIGN_ID)]
+
+
+def test_unschedule_campaign_failure(backend: MockMailchimpCampaignBackend):
+    backend.client.campaigns.unschedule.side_effect = ApiClientError("", 400)
+    with pytest.raises(CampaignBackendError) as error:
+        backend.unschedule_campaign(CAMPAIGN_ID)
+
+    assert error.match("Error while unscheduling campaign")

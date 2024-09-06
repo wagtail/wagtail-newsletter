@@ -3,6 +3,7 @@ import logging
 from copy import copy
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
 from typing import Any, NoReturn, Optional, cast
 
 from django.conf import settings
@@ -19,7 +20,11 @@ from ..models import NewsletterRecipientsBase
 from . import Campaign, CampaignBackend, CampaignBackendError
 
 
-CAMPAIGN_STATUS_DRAFT = "save"
+class CampaignStatus(Enum):
+    DRAFT = "save"
+    SCHEDULED = "schedule"
+    PAUSED = "paused"
+
 
 logger = logging.getLogger(__name__)
 
@@ -32,15 +37,23 @@ class MailchimpCampaign(Campaign):
     status: str
 
     @property
-    def sent(self) -> bool:
-        return self.status != CAMPAIGN_STATUS_DRAFT
+    def is_scheduled(self) -> bool:
+        return self.status == CampaignStatus.SCHEDULED.value
+
+    @property
+    def is_sent(self) -> bool:
+        return self.status not in [
+            CampaignStatus.DRAFT.value,
+            CampaignStatus.SCHEDULED.value,
+            CampaignStatus.PAUSED.value,
+        ]
 
     @property
     def url(self) -> str:
         server = self.backend.client.api_client.server
         base_url = f"https://{server}.admin.mailchimp.com"
 
-        if self.sent:
+        if self.is_sent:
             return f"{base_url}/reports/summary?id={self.web_id}"
 
         else:
@@ -62,7 +75,10 @@ class MailchimpCampaign(Campaign):
             "clicks": data["clicks"]["unique_clicks"],
         }
         if data["send_time"]:
-            report["send_time"] = datetime.fromisoformat(data["send_time"])
+            try:
+                report["send_time"] = datetime.fromisoformat(data["send_time"])
+            except ValueError:
+                pass
         return report
 
 
@@ -235,6 +251,37 @@ class MailchimpCampaignBackend(CampaignBackend):
         except ApiClientError as error:
             _log_and_raise(
                 error, "Error while sending campaign", campaign_id=campaign_id
+            )
+
+    def schedule_campaign(self, campaign_id: str, schedule_time: datetime) -> None:
+        rounded_minute = schedule_time.minute - (schedule_time.minute % 15)
+        rounded_time = schedule_time.replace(
+            minute=rounded_minute, second=0, microsecond=0
+        )
+        if rounded_time != schedule_time:
+            raise CampaignBackendError(
+                "Schedule time must be in 15 minute intervals,"
+                f" e.g. {schedule_time.hour:02d}:{rounded_minute:02d} "
+                f"not {schedule_time.hour:02d}:{schedule_time.minute:02d}."
+            )
+
+        try:
+            self.client.campaigns.schedule(
+                campaign_id, {"schedule_time": schedule_time.isoformat()}
+            )
+
+        except ApiClientError as error:
+            _log_and_raise(
+                error, "Error while scheduling campaign", campaign_id=campaign_id
+            )
+
+    def unschedule_campaign(self, campaign_id: str) -> None:
+        try:
+            self.client.campaigns.unschedule(campaign_id)
+
+        except ApiClientError as error:
+            _log_and_raise(
+                error, "Error while unscheduling campaign", campaign_id=campaign_id
             )
 
 

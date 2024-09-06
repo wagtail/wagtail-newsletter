@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -48,6 +49,12 @@ class MemoryCampaignBackend(CampaignBackend):
         raise NotImplementedError
 
     def send_campaign(self, campaign_id: str):
+        raise NotImplementedError
+
+    def schedule_campaign(self, campaign_id: str, schedule_time: datetime):
+        raise NotImplementedError
+
+    def unschedule_campaign(self, campaign_id: str):
         raise NotImplementedError
 
 

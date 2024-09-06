@@ -1,10 +1,10 @@
 from typing import cast
 
+from django.utils.formats import localize
 from wagtail.admin import messages
 from wagtail.log_actions import log
 
-from . import campaign_backends
-from .forms import SendTestEmailForm
+from . import campaign_backends, forms
 from .models import NewsletterPageMixin
 
 
@@ -22,8 +22,8 @@ def save_campaign(request, page: NewsletterPageMixin) -> None:
             html=version.get_newsletter_html(),
         )
 
-    except campaign_backends.CampaignBackendError:
-        messages.error(request, "Failed to save newsletter campaign")
+    except campaign_backends.CampaignBackendError as error:
+        messages.error(request, error.message)
         return
 
     page.newsletter_campaign = campaign_id
@@ -43,11 +43,11 @@ def save_campaign(request, page: NewsletterPageMixin) -> None:
 
 
 def send_test_email(request, page: NewsletterPageMixin) -> None:
-    form = SendTestEmailForm(request.POST, prefix="newsletter-test")
+    form = forms.SendTestEmailForm(request.POST, prefix="newsletter-test")
     if not form.is_valid():
         for field, errors in form.errors.items():
             for message in errors:
-                messages.error(request, f"{field!r}: {message}")
+                messages.error(request, f"{form[field].label}: {message}")
         return
 
     email = form.cleaned_data["email"]
@@ -55,10 +55,16 @@ def send_test_email(request, page: NewsletterPageMixin) -> None:
     save_campaign(request, page)
 
     backend = campaign_backends.get_backend()
-    backend.send_test_email(
-        campaign_id=page.newsletter_campaign,
-        email=email,
-    )
+
+    try:
+        backend.send_test_email(
+            campaign_id=page.newsletter_campaign,
+            email=email,
+        )
+
+    except campaign_backends.CampaignBackendError as error:
+        messages.error(request, error.message)
+        return
 
     log(page, "wagtail_newsletter.send_test_email", data={"email": email})
 
@@ -69,8 +75,48 @@ def send_campaign(request, page: NewsletterPageMixin) -> None:
     save_campaign(request, page)
 
     backend = campaign_backends.get_backend()
-    backend.send_campaign(page.newsletter_campaign)
+
+    try:
+        backend.send_campaign(page.newsletter_campaign)
+
+    except campaign_backends.CampaignBackendError as error:
+        messages.error(request, error.message)
+        return
 
     log(page, "wagtail_newsletter.send_campaign")
 
     messages.success(request, "Newsletter campaign is now sending")
+
+
+def schedule_campaign(request, page: NewsletterPageMixin) -> None:
+    form = forms.ScheduleCampaignForm(request.POST, prefix="newsletter-schedule")
+    if not form.is_valid():
+        for field, errors in form.errors.items():
+            for message in errors:
+                messages.error(request, f"{form[field].label}: {message}")
+        return
+
+    schedule_time = form.cleaned_data["schedule_time"]
+
+    save_campaign(request, page)
+
+    backend = campaign_backends.get_backend()
+
+    try:
+        backend.schedule_campaign(
+            campaign_id=page.newsletter_campaign,
+            schedule_time=schedule_time,
+        )
+
+    except campaign_backends.CampaignBackendError as error:
+        messages.error(request, error.message)
+        return
+
+    log(
+        page,
+        "wagtail_newsletter.schedule_campaign",
+        data={"schedule_time": schedule_time},
+    )
+
+    when = f"{localize(schedule_time)} {schedule_time.tzname()}"
+    messages.success(request, f"Campaign scheduled to send at {when}")
