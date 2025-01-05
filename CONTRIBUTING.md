@@ -27,8 +27,7 @@ flit install
 
 ## pre-commit
 
-Note that this project uses [pre-commit](https://github.com/pre-commit/pre-commit).
-It is included in the project testing requirements. To set up locally:
+Note that this project uses [pre-commit](https://github.com/pre-commit/pre-commit).  It is included in the project testing requirements. To set up locally:
 
 ```shell
 # go to the project directory
@@ -48,15 +47,13 @@ Now you can run tests as shown below:
 tox
 ```
 
-or, you can run them for a specific environment `tox -e python3.12-django5.0-wagtail6.1` or specific test
-`tox -e python3.12-django5.0-wagtail6.1-sqlite wagtail-newsletter.tests.test_file.TestClass.test_method`
+or, you can run them for a specific environment `tox -e python3.12-django5.1-wagtail6.3` or specific test `tox -e python3.12-django5.1-wagtail6.3-sqlite -- wagtail-newsletter.tests.test_file.TestClass.test_method`
 
 To run the test app interactively, use `tox -e interactive`, visit `http://127.0.0.1:8020/admin/` and log in with `admin`/`changeme`.
 
 ## How to build the documentation
 
-The documentation source lives under `docs/`. It's built with [Sphinx](https://www.sphinx-doc.org/).
-You can start a development server that will auto-build and refresh the page in the browser:
+The documentation source lives under `docs/`. It's built with [Sphinx](https://www.sphinx-doc.org/).  You can start a development server that will auto-build and refresh the page in the browser:
 
 ```sh
 pip install sphinx-autobuild
