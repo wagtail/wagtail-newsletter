@@ -22,10 +22,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up Python 3.8
+      - name: Set up Python 3.9
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.9'
       - name: Install dependencies
         env:
           FLIT_ROOT_INSTALL: true
@@ -42,7 +42,7 @@ jobs:
     needs: lint
     strategy:
       matrix:
-        python: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python: ['3.9', '3.10', '3.11', '3.12']
 
     steps:
       - uses: actions/checkout@v4
@@ -64,11 +64,11 @@ jobs:
     needs: lint
     strategy:
       matrix:
-        python: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python: ['3.9', '3.10', '3.11', '3.12']
 
     services:
       postgres:
-        image: ${{ matrix.postgres || 'postgres:12' }}
+        image: ${{ matrix.postgres || 'postgres:13' }}
         env:
           POSTGRES_PASSWORD: postgres
         ports:
