@@ -52,7 +52,7 @@ ci = [
 ]
 docs = [
     "sphinx==7.3.7",
-    "sphinx-wagtail-theme==6.3.0",
+    "sphinx-wagtail-theme==6.4.0",
 ]
 mailchimp = [
     "mailchimp-marketing>=3.0.80",
