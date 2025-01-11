@@ -1,10 +1,12 @@
 from datetime import datetime
 
+from wagtail_newsletter import __version__
+
 
 project = "Wagtail Newsletter"
 copyright = f"{datetime.now().year}, Torchbox and contributors. BSD license"
 author = "Alex Morega"
-release = "0.1.0"
+release = __version__
 
 extensions = [
     "sphinx.ext.autosectionlabel",

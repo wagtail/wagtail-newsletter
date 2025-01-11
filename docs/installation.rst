@@ -61,6 +61,12 @@ Add ``NewsletterPageMixin`` to a page model:
       # replace app_name with your app name
       newsletter_template = "app_name/article_page_newsletter.html"
 
+.. note::
+
+  ``NewsletterPageMixin`` adds extra model fields to the page model, so you
+  need to run ``django-admin makemigrations`` and ``django-admin migrate`` to
+  add them to the database.
+
 Create a page template for the email body
 (``templates/demo/article_page_newsletter.html``). The content of the template
 is completely up to you, but writing email-compatible HTML is notoriously
