@@ -32,7 +32,8 @@ class MRMLRenderNode(template.Node):
 
         mjml_source = self.nodelist.render(context)
         try:
-            return mrml.to_html(mjml_source)
+            output = mrml.to_html(mjml_source)
+            return output.content
         except OSError as error:
             # The MRML library raises OSError exceptions when something goes wrong.
             message = error.args[0]

@@ -57,7 +57,7 @@ mailchimp = [
     "mailchimp-marketing>=3.0.80",
 ]
 mrml = [
-    "mrml>=0.1.13",
+    "mrml>=0.2",
 ]
 
 [project.urls]
