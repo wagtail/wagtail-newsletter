@@ -1,5 +1,5 @@
 from copy import copy
-from functools import lru_cache
+from functools import cache
 
 from django.utils.html import escape
 from wagtail.models import Page
@@ -23,7 +23,7 @@ class LinkHandlerForEmail(PageLinkHandler):
             return "<a>"
 
 
-@lru_cache(maxsize=None)
+@cache
 def _get_rewriter_for_email():
     embed_rules = copy(features.get_embed_types())
     link_rules = copy(features.get_link_types())
