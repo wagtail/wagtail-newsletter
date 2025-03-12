@@ -210,11 +210,32 @@ Backends should subclass the
 ``wagtail_newsletter.campaign_backends.CampaignBackend`` abstract class and
 implement its methods.
 
-To use a different backend, configure the ``WAGTAIL_NEWSLETTER_CAMPAIGN_BACKEND`` Django setting:
+For example, here is how you would implement a custom backend that disables
+tracking for a Mailchimp campaign:
 
 .. code-block:: python
 
-  WAGTAIL_NEWSLETTER_CAMPAIGN_BACKEND = "myapp.CustomBackend"
+  # myapp/campaign_backend.py
+  from wagtail_newsletter.campaign_backends.mailchimp import MailchimpCampaignBackend
+
+  class CustomBackend(MailchimpCampaignBackend):
+      def get_campaign_request_body(self, **kwargs):
+          body = super().get_campaign_request_body(**kwargs)
+
+          # Add tracking settings to disable all tracking
+          body["tracking"] = {
+              "opens": False,
+              "html_clicks": False,
+          }
+
+          return body
+
+To enable the backend, configure the ``WAGTAIL_NEWSLETTER_CAMPAIGN_BACKEND`` Django setting:
+
+.. code-block:: python
+
+  WAGTAIL_NEWSLETTER_CAMPAIGN_BACKEND = "myapp.campaign_backend.CustomBackend"
+
 
 Permissions
 -----------
