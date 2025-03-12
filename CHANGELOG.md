@@ -7,9 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Added
+
+- Support for Wagtail 6.4 and Python 3.13 (#74)
+
 ### Changed
 
 - Bump minimum `mrml` version to `0.2` (#72).
+
+### Removed
+
+- Support for Wagtail 6.2 (#74)
 
 ## [0.2.1] - 2024-09-06
 
