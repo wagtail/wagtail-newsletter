@@ -70,4 +70,4 @@ def newsletter_static(path):
     Variant of the {% static %}` tag for use in newsletter emails - tries to form
     a full URL using WAGTAILADMIN_BASE_URL if the static URL isn't already a full URL.
     """
-    return urljoin(get_admin_base_url(), static(path))
+    return urljoin(get_admin_base_url() or "", static(path))
