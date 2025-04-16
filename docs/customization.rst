@@ -31,6 +31,21 @@ it into HTML.
 .. _MJML: https://mjml.io
 .. _mrml: https://github.com/jdrouet/mrml
 
+The ``{% newsletter_static %}`` template tag
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``{% newsletter_static %}`` template tag is used to embed static files in
+newsletters. It works like Django's ``{% static %}`` template tag, but it
+generates a fully-qualified URL for the static file, by prepending Wagtail's
+``WAGTAILADMIN_BASE_URL`` setting to the path.
+
+.. code-block:: htmldjango
+
+  {% load wagtail_newsletter %}
+  ...
+
+  {% newsletter_static "images/logo.png" %}
+
 The ``newsletter_richtext`` filter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
