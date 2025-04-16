@@ -52,3 +52,16 @@ def test_render_mjml_syntax_error():
         template.render(Context())
 
     assert error.match("Failed to render MJML: 'unexpected token")
+
+
+def test_newsletter_static_tag(settings):
+    settings.WAGTAILADMIN_BASE_URL = "http://example.com"
+
+    template = Template(
+        """
+        {% load wagtail_newsletter %}
+        {% newsletter_static 'test/static/file.css' %}
+        """
+    )
+    result = template.render(Context())
+    assert result.strip() == "http://example.com/static/test/static/file.css"

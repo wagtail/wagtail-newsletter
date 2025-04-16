@@ -1,5 +1,9 @@
+from urllib.parse import urljoin
+
 from django import template
+from django.templatetags.static import static
 from django.utils.safestring import mark_safe
+from wagtail.admin.utils import get_admin_base_url
 from wagtail.rich_text import RichText
 
 from ..rich_text import rewrite_db_html_for_email
@@ -58,3 +62,12 @@ def mrml_tag(parser, token) -> MRMLRenderNode:
             f"{tokens[0]!r} tag doesn't receive any arguments."
         )
     return MRMLRenderNode(nodelist)
+
+
+@register.simple_tag
+def newsletter_static(path):
+    """
+    Variant of the {% static %}` tag for use in newsletter emails - tries to form
+    a full URL using WAGTAILADMIN_BASE_URL if the static URL isn't already a full URL.
+    """
+    return urljoin(get_admin_base_url() or "", static(path))
