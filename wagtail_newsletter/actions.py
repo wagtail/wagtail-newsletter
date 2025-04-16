@@ -12,7 +12,7 @@ def save_campaign(request, page: NewsletterPageMixin) -> None:
     backend = campaign_backends.get_backend()
     revision = page.latest_revision
     version = cast(NewsletterPageMixin, revision.as_object())
-    subject = version.newsletter_subject or version.title
+    subject = version.get_newsletter_subject()
 
     try:
         campaign_id = backend.save_campaign(

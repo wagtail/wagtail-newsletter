@@ -162,6 +162,9 @@ class NewsletterPageMixin(Page):
             context=self.get_newsletter_context(),
         )
 
+    def get_newsletter_subject(self) -> str:
+        return self.newsletter_subject or self.title
+
     def serve_preview(self, request, mode_name):  # type: ignore
         if mode_name == "newsletter":
             return HttpResponse(self.get_newsletter_html().encode())
