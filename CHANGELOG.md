@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump minimum `mrml` version to `0.2` (#72)
 - Extract get_newsletter_subject method (#77)
+- `{% newsletter_static %}` template tag (#79)
 
 ### Removed
 
