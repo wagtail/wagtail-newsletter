@@ -253,7 +253,7 @@ class MailchimpCampaignBackend(CampaignBackend):
                 error, "Error while sending campaign", campaign_id=campaign_id
             )
 
-    def schedule_campaign(self, campaign_id: str, schedule_time: datetime) -> None:
+    def validate_schedule_time(self, schedule_time: datetime) -> None:
         rounded_minute = schedule_time.minute - (schedule_time.minute % 15)
         rounded_time = schedule_time.replace(
             minute=rounded_minute, second=0, microsecond=0
@@ -264,6 +264,9 @@ class MailchimpCampaignBackend(CampaignBackend):
                 f" e.g. {schedule_time.hour:02d}:{rounded_minute:02d} "
                 f"not {schedule_time.hour:02d}:{schedule_time.minute:02d}."
             )
+
+    def schedule_campaign(self, campaign_id: str, schedule_time: datetime) -> None:
+        self.validate_schedule_time(schedule_time)
 
         try:
             self.client.campaigns.schedule(
