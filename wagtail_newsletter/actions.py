@@ -98,9 +98,15 @@ def schedule_campaign(request, page: NewsletterPageMixin) -> None:
 
     schedule_time = form.cleaned_data["schedule_time"]
 
-    save_campaign(request, page)
-
     backend = campaign_backends.get_backend()
+
+    try:
+        backend.validate_schedule_time(schedule_time)
+    except campaign_backends.CampaignBackendError as error:
+        messages.error(request, error.message)
+        return
+
+    save_campaign(request, page)
 
     try:
         backend.schedule_campaign(
