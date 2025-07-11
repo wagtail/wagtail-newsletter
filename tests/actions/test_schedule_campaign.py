@@ -98,3 +98,35 @@ def test_schedule_in_the_past(
     response = admin_client.post(url, data, follow=True)
 
     assert "Schedule time: Date must be in the future." in response.content.decode()
+
+
+def test_schedule_campaign_validation_error_before_save(
+    page: ArticlePage, admin_client: Client, memory_backend: MemoryCampaignBackend
+):
+    """Test that schedule validation happens before save_campaign is called."""
+    memory_backend.save_campaign = Mock(return_value=CAMPAIGN_ID)
+    memory_backend.get_campaign = Mock(return_value=Mock(url=CAMPAIGN_URL))
+    memory_backend.validate_schedule_time = Mock(
+        side_effect=CampaignBackendError("Invalid schedule time")
+    )
+
+    url = reverse("wagtailadmin_pages:edit", kwargs={"page_id": page.pk})
+    schedule_time = get_schedule_time(timedelta(days=1))
+    data = {
+        "title": page.title,
+        "slug": page.slug,
+        "newsletter-action": "schedule_campaign",
+        "newsletter-schedule-schedule_time": schedule_time.isoformat(),
+    }
+    response = admin_client.post(url, data, follow=True)
+
+    # Validation error should be shown
+    assert "Invalid schedule time" in response.content.decode()
+
+    # save_campaign should NOT have been called due to validation failure
+    assert memory_backend.save_campaign.mock_calls == []
+
+    # validate_schedule_time should have been called
+    assert memory_backend.validate_schedule_time.mock_calls == [
+        call(schedule_time.replace(tzinfo=timezone.utc))
+    ]

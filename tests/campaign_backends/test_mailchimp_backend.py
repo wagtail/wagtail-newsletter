@@ -470,6 +470,46 @@ def test_schedule_campaign_invalid_time(backend: MockMailchimpCampaignBackend):
     assert error.match("Schedule time must be in 15 minute intervals")
 
 
+@pytest.mark.parametrize(
+    "schedule_time",
+    [
+        datetime(2024, 8, 10, 16, 0, tzinfo=timezone.utc),  # :00
+        datetime(2024, 8, 10, 16, 15, tzinfo=timezone.utc),  # :15
+        datetime(2024, 8, 10, 16, 30, tzinfo=timezone.utc),  # :30
+        datetime(2024, 8, 10, 16, 45, tzinfo=timezone.utc),  # :45
+    ],
+)
+def test_validate_schedule_time_valid(
+    backend: MockMailchimpCampaignBackend, schedule_time
+):
+    """Test that valid schedule times (15-minute intervals) pass validation."""
+    # Should not raise any exception
+    backend.validate_schedule_time(schedule_time)
+
+
+@pytest.mark.parametrize(
+    "schedule_time",
+    [
+        datetime(2024, 8, 10, 16, 1, tzinfo=timezone.utc),  # :01
+        datetime(2024, 8, 10, 16, 7, tzinfo=timezone.utc),  # :07
+        datetime(2024, 8, 10, 16, 22, tzinfo=timezone.utc),  # :22
+        datetime(2024, 8, 10, 16, 37, tzinfo=timezone.utc),  # :37
+        datetime(2024, 8, 10, 16, 59, tzinfo=timezone.utc),  # :59
+        datetime(2024, 8, 10, 16, 30, 30, tzinfo=timezone.utc),  # with seconds
+        datetime(
+            2024, 8, 10, 16, 30, 0, 123456, tzinfo=timezone.utc
+        ),  # with microseconds
+    ],
+)
+def test_validate_schedule_time_invalid(
+    backend: MockMailchimpCampaignBackend, schedule_time
+):
+    """Test that invalid schedule times (not 15-minute intervals) raise errors."""
+    with pytest.raises(CampaignBackendError) as error:
+        backend.validate_schedule_time(schedule_time)
+    assert "Schedule time must be in 15 minute intervals" in str(error.value.message)
+
+
 def test_unschedule_campaign(backend: MockMailchimpCampaignBackend):
     backend.unschedule_campaign(CAMPAIGN_ID)
     assert backend.client.campaigns.unschedule.mock_calls == [call(CAMPAIGN_ID)]
