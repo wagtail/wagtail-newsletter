@@ -9,13 +9,19 @@ git clone https://github.com/wagtail/wagtail-newsletter.git
 cd wagtail-newsletter
 ```
 
-With your preferred virtualenv activated, install testing dependencies:
+With your preferred virtualenv activated, install development dependencies:
+
+### Using uv (recommended)
+
+```sh
+uv sync --extra=dev
+```
 
 ### Using pip
 
 ```sh
 python -m pip install --upgrade 'pip>=21.3'
-python -m pip install -e '.[testing,ci,mailchimp,mrml]' -U
+python -m pip install -e '.[dev]' -U
 ```
 
 ### Using flit
@@ -56,6 +62,5 @@ To run the test app interactively, use `tox -e interactive`, visit `http://127.0
 The documentation source lives under `docs/`. It's built with [Sphinx](https://www.sphinx-doc.org/).  You can start a development server that will auto-build and refresh the page in the browser:
 
 ```sh
-pip install sphinx-autobuild
 sphinx-autobuild docs docs/_build/html
 ```
