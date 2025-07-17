@@ -57,7 +57,7 @@ jobs:
         run: |
           uv sync --extra=ci
       - name: Test
-        run: uv tool run --with=tox-uv tox
+        run: uv run tox
         env:
           DB: sqlite
 
@@ -89,7 +89,7 @@ jobs:
         run: |
           uv sync --extra=ci
       - name: Test
-        run: uv tool run --with=tox-uv tox
+        run: uv run tox
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/wagtail_newsletter
           DB: postgres

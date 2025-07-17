@@ -49,6 +49,7 @@ testing = [
 ci = [
     "tox",
     "tox-gh-actions",
+    "tox-uv",
 ]
 docs = [
     "sphinx",
