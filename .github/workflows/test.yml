@@ -32,7 +32,8 @@ jobs:
         run: |
           uv sync --extra=dev
           echo "$PWD/.venv/bin" >> $GITHUB_PATH
-      - uses: pre-commit/action@v3.0.1
+      - name: Run pre-commit
+        run: uv tool run --with=pre-commit-uv pre-commit run --all-files
       - uses: jakebailey/pyright-action@v2
         with:
           version: PATH
