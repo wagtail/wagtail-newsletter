@@ -111,7 +111,9 @@ class MailchimpCampaignBackend(CampaignBackend):
 
     def get_audience_segments(self, audience_id) -> "list[AudienceSegment]":
         try:
-            segments = self.client.lists.list_segments(audience_id)["segments"]
+            segments = self.client.lists.list_segments(audience_id, count=1000)[
+                "segments"
+            ]
 
         except ApiClientError as error:
             if error.status_code == 404:
