@@ -111,9 +111,11 @@ class MailchimpCampaignBackend(CampaignBackend):
 
     def get_audience_segments(self, audience_id) -> "list[AudienceSegment]":
         try:
-            segments = self.client.lists.list_segments(audience_id, count=1000)[
-                "segments"
-            ]
+            # Filter by `type="saved"` to list only segments created manually
+            # https://github.com/wagtail/wagtail-newsletter/issues/86
+            segments = self.client.lists.list_segments(
+                audience_id, type="saved", count=1000
+            )["segments"]
 
         except ApiClientError as error:
             if error.status_code == 404:
