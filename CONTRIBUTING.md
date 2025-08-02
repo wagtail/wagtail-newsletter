@@ -56,6 +56,6 @@ To run the test app interactively, use `tox -e interactive`, visit `http://127.0
 The documentation source lives under `docs/`. It's built with [Sphinx](https://www.sphinx-doc.org/).  You can start a development server that will auto-build and refresh the page in the browser:
 
 ```sh
-pip install sphinx-autobuild
+pip install sphinx-autobuild sphinx_wagtail_theme
 sphinx-autobuild docs docs/_build/html
 ```

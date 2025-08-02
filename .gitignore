@@ -18,3 +18,4 @@ __pycache__/
 /demo/db.sqlite3
 /demo/static_root
 /demo/media_root
+script.sh

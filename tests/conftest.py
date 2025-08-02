@@ -26,6 +26,10 @@ class MemoryCampaignBackend(CampaignBackend):
         self.audiences = []
         self.segments = {}
 
+    def validate_recipients(self, recipients) -> None:
+        """Validate that the recipients meet the backend's requirements."""
+        pass
+
     def add(self, audience: Audience, segments: "list[AudienceSegment]"):
         self.audiences.append(audience)
         self.segments[audience.id] = segments
@@ -66,3 +70,34 @@ def memory_backend(monkeypatch: pytest.MonkeyPatch):
         lambda: backend,
     )
     return backend
+
+
+def pytest_addoption(parser):
+    """Add custom command line options for pytest"""
+    parser.addoption(
+        "--enable-mail",
+        action="store_true",
+        default=False,
+        help="Enable email sending tests",
+    )
+
+
+def pytest_configure(config):
+    """Register custom markers"""
+    config.addinivalue_line(
+        "markers", "mail: mark tests that require email functionality"
+    )
+    config.addinivalue_line(
+        "markers", "listmonk_integration: mark integration test (for listmonk)"
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    """Skip mail tests if --enable-mail is not provided"""
+    if not config.getoption("--enable-mail"):
+        skip_mail = pytest.mark.skip(
+            reason="Email testing disabled. Use --enable-mail to enable."
+        )
+        for item in items:
+            if "mail" in item.keywords:
+                item.add_marker(skip_mail)

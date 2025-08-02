@@ -34,6 +34,13 @@ class CampaignBackend(ABC):
     name: str
 
     @abstractmethod
+    def validate_recipients(
+        self, recipients: "Optional[models.NewsletterRecipientsBase]"
+    ) -> None:
+        """Validate that the recipients meet the backend's requirements."""
+        pass
+
+    @abstractmethod
     def get_audiences(self) -> "list[audiences.Audience]": ...
 
     @abstractmethod
@@ -45,6 +52,7 @@ class CampaignBackend(ABC):
     def save_campaign(
         self,
         *,
+        name: str,
         campaign_id: Optional[str] = None,
         recipients: "Optional[models.NewsletterRecipientsBase]",
         subject: str,

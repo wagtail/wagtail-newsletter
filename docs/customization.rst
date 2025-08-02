@@ -216,7 +216,7 @@ Campaign backends
 -----------------
 
 Wagtail-newsletter is designed to work with multiple email campaign providers,
-though currently it only supports Mailchimp out of the box. Should you want to
+it currently supports Mailchimp and listmonk out of the box. Should you want to
 target another provider, or change the behaviour of an existing backend (e.g.
 to tweak the configuration of a campaign before it's sent to the API), you can
 define your own backend class.

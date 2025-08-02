@@ -2,8 +2,8 @@ Installation
 ============
 
 Here are the steps to install and configure ``wagtail-newsletter`` for your
-site. They assume that you'll be sending campaigns through Mailchimp_ using the
-default campaign backend.
+site. They assume that you'll be sending campaigns through **Mailchimp** or **listmonk**, using the
+corresponding campaign backend.
 
 .. _Mailchimp: https://mailchimp.com
 
@@ -26,18 +26,46 @@ Add the app to ``INSTALLED_APPS``:
       "wagtail_newsletter",
   ]
 
-For ``WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY``, `get an API key`_ from Mailchimp.
-
 The ``WAGTAIL_NEWSLETTER_FROM_NAME`` and ``WAGTAIL_NEWSLETTER_REPLY_TO``
 settings are used to build the `From:` field in the outgoing emails:
+
+
+.. code-block:: python
+
+  WAGTAIL_NEWSLETTER_FROM_NAME = "Example Newsletter"
+  WAGTAIL_NEWSLETTER_REPLY_TO = "newsletter@example.com"
+
+Mailchimp settings
+^^^^^^^^^^^^^^^^^^
+
+For ``WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY``, `get an API key`_ from Mailchimp.
+
 
 .. _get an API key: https://us1.admin.mailchimp.com/account/api/
 
 .. code-block:: python
 
   WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY = "the-mailchimp-api-key"
-  WAGTAIL_NEWSLETTER_FROM_NAME = "Example Newsletter"
-  WAGTAIL_NEWSLETTER_REPLY_TO = "newsletter@example.com"
+
+listmonk settings
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+  # Optional: override headers if needed
+  WAGTAIL_NEWSLETTER_LISTMONK_HEADERS = {
+      "Content-Type": "application/json",
+      "charset": utf-8"
+  }
+
+  WAGTAIL_NEWSLETTER_LISTMONK_BASE_URL = "https://localhost:8000"
+  WAGTAIL_NEWSLETTER_LISTMONK_USER = "user"  # User with API key
+  WAGTAIL_NEWSLETTER_LISTMONK_API_KEY = "the-listmonk-api-key"
+
+  # Use the listmonk backend instead of the default Mailchimp backend
+  WAGTAIL_NEWSLETTER_CAMPAIGN_BACKEND = "wagtail_newsletter.campaign_backends.listmonk.ListmonkCampaignBackend"
+
+
 
 Set up a page model for newsletters
 -----------------------------------
@@ -93,11 +121,13 @@ scenes it uses the mrml_ library.
 Configure recipients
 --------------------
 
-Finally, we need to configure recipients for our newsletteres. Go to Wagtail
+Finally, we need to configure recipients for our newsletters. Go to Wagtail
 admin and click on *Settings*, then *Newsletter Recipients*, and create a new
-Recipients record. Give it a descriptive name, and select an *audience* from
-Mailchimp, and optionally an *audience segment*, and click *Create*. When
-preparing a newsletter page, you can select this *Recipients* record to use as
+Recipients record. Give it a descriptive name, and select an *audience*.
+- For **Mailchimp**, you can optionally choose an *audience segment*.
+- For **listmonk**, only the *audience* (i.e., a listmonk list) is required.
+
+When preparing a newsletter page, you can select this *Recipients* record to use as
 recipients for the campaign.
 
 Configure a Django cache

@@ -6,18 +6,14 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, NoReturn, Optional, cast
 
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 from mailchimp_marketing import Client
 from mailchimp_marketing.api_client import ApiClientError
 
-from ..audiences import (
-    Audience,
-    AudienceSegment,
-)
+from ..audiences import Audience, AudienceSegment
 from ..models import NewsletterRecipientsBase
 from . import Campaign, CampaignBackend, CampaignBackendError
+from ._utils import _require_setting
 
 
 class CampaignStatus(Enum):
@@ -97,6 +93,11 @@ class MailchimpCampaignBackend(CampaignBackend):
             "api_key": _require_setting("WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY"),
             "timeout": 30,
         }
+
+    def validate_recipients(
+        self, recipients: Optional[NewsletterRecipientsBase]
+    ) -> None:
+        pass
 
     def get_audiences(self) -> "list[Audience]":
         audiences = self.client.lists.get_all_lists()["lists"]
@@ -198,6 +199,7 @@ class MailchimpCampaignBackend(CampaignBackend):
         recipients: Optional[NewsletterRecipientsBase],
         subject: str,
         html: str,
+        **kwargs,
     ) -> str:
         body = self.get_campaign_request_body(recipients=recipients, subject=subject)
 
@@ -296,10 +298,3 @@ def _log_and_raise(error: ApiClientError, message: str, **kwargs) -> NoReturn:
         *kwargs.values(),
     )
     raise CampaignBackendError(message) from error
-
-
-def _require_setting(name):
-    value = getattr(settings, name, None)
-    if value is None:
-        raise ImproperlyConfigured(f"{name} is not set")
-    return value

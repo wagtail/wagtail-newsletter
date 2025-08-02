@@ -38,6 +38,10 @@ Backends
 
   WAGTAIL_NEWSLETTER_CAMPAIGN_BACKEND = "wagtail_newsletter.campaign_backends.mailchimp.MailchimpCampaignBackend"
 
+  # Or alternatively
+
+  WAGTAIL_NEWSLETTER_CAMPAIGN_BACKEND = "wagtail_newsletter.campaign_backends.listmonk.ListmonkCampaignBackend"
+
 Specifies which :ref:`campaign backend <Campaign backends>` to use.
 
 
@@ -52,6 +56,47 @@ When using the default Mailchimp backend, this setting specifies the API key.
 An API key can be obtained `from the Mailchimp website`_.
 
 .. _from the Mailchimp website: https://us1.admin.mailchimp.com/account/api/
+
+``WAGTAIL_NEWSLETTER_LISTMONK_HEADERS``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  WAGTAIL_NEWSLETTER_LISTMONK_HEADERS = {
+      "Content-Type": "application/json",
+      "charset": "utf-8"
+  }
+
+Optional. Specifies additional headers to include in requests to the listmonk API.
+Defaults to ``{"Content-Type": "application/json;charset=utf-8"}``.
+
+``WAGTAIL_NEWSLETTER_LISTMONK_BASE_URL``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  WAGTAIL_NEWSLETTER_LISTMONK_BASE_URL = "https://localhost:8000"
+
+Specifies the base URL of your listmonk server. This should point to the root of the listmonk API.
+
+``WAGTAIL_NEWSLETTER_LISTMONK_USER``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  WAGTAIL_NEWSLETTER_LISTMONK_USER = "user"
+
+The username associated with your listmonk API key. This user must have the appropriate permissions to create and send campaigns.
+
+``WAGTAIL_NEWSLETTER_LISTMONK_API_KEY``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+  WAGTAIL_NEWSLETTER_LISTMONK_API_KEY = "the-listmonk-api-key"
+
+The API key used to authenticate with the listmonk server.
+
 
 Recipients
 ----------

@@ -88,9 +88,7 @@ class NewsletterPanel(Panel):
             ):
                 context["report"] = campaign.get_report()
 
-            context["has_action_permission"] = {
-                permission: True for permission in self.permissions
-            }
+            context["has_action_permission"] = dict.fromkeys(self.permissions, True)
 
             return context
 

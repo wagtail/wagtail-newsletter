@@ -8,14 +8,31 @@ from . import campaign_backends, forms
 from .models import NewsletterPageMixin
 
 
-def save_campaign(request, page: NewsletterPageMixin) -> None:
+def save_campaign(
+    request, page: NewsletterPageMixin, raise_on_empty_recipients: bool = False
+) -> None:
+    """
+    Raises:
+        ValueError: If backend is listmonk and recipients or recipients' audience is
+        None
+    """
     backend = campaign_backends.get_backend()
     revision = page.latest_revision
     version = cast(NewsletterPageMixin, revision.as_object())
     subject = version.get_newsletter_subject()
+    title = page.title
+
+    recipients = version.newsletter_recipients
+
+    if backend.name == "listmonk" and (recipients is None or not recipients.audience):
+        msg = "listmonk requires an audience (list) to be selected when creating a campaign"
+        if raise_on_empty_recipients:
+            raise ValueError(msg)
+        messages.error(request, msg)
 
     try:
         campaign_id = backend.save_campaign(
+            name=title,
             campaign_id=page.newsletter_campaign,
             recipients=version.newsletter_recipients,
             subject=subject,
@@ -52,7 +69,11 @@ def send_test_email(request, page: NewsletterPageMixin) -> None:
 
     email = form.cleaned_data["email"]
 
-    save_campaign(request, page)
+    try:
+        save_campaign(request, page, raise_on_empty_recipients=True)
+    except ValueError as error:
+        messages.error(request, error)
+        return
 
     backend = campaign_backends.get_backend()
 
