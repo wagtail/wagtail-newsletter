@@ -40,16 +40,10 @@ testing = [
     "dj-database-url",
     "django-debug-toolbar",
     "django-stubs",
-    "pre-commit",
     "pyright",
     "pytest",
     "pytest-cov",
     "pytest-django",
-]
-ci = [
-    "tox",
-    "tox-gh-actions",
-    "tox-uv",
 ]
 docs = [
     "sphinx",

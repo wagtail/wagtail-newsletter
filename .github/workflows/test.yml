@@ -53,11 +53,8 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - name: Install
-        run: |
-          uv sync --extra=ci
       - name: Test
-        run: uv run tox
+        run: uv tool run --with=tox-uv tox
         env:
           DB: sqlite
 
@@ -85,11 +82,8 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - name: Install
-        run: |
-          uv sync --extra=ci
       - name: Test
-        run: uv run tox
+        run: uv tool run --with=tox-uv tox
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/wagtail_newsletter
           DB: postgres
