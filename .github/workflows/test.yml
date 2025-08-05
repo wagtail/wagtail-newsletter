@@ -54,7 +54,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
       - name: Test
-        run: uv tool run --with=tox-uv tox
+        run: uv tool run --with=tox-uv --with=tox-gh-actions tox
         env:
           DB: sqlite
 
@@ -83,7 +83,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
       - name: Test
-        run: uv tool run --with=tox-uv tox
+        run: uv tool run --with=tox-uv --with=tox-gh-actions tox
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/wagtail_newsletter
           DB: postgres
