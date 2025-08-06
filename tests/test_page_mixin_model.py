@@ -145,3 +145,12 @@ def test_preview_newsletter():
     request = RequestFactory().get("/")
     response = page.serve_preview(request, "newsletter")
     assert '<h1 class="newsletter">Page title</h1>' in response.content.decode()
+
+
+def test_newsletter_html_with_extra_context():
+    page = ArticlePage(title="Page title")
+    extra_context = {"message": "extra context message"}
+    html = page.get_newsletter_html(extra_context=extra_context)
+
+    assert '<h1 class="newsletter">Page title</h1>' in html
+    assert "<p>extra context message</p>" in html
