@@ -9,7 +9,7 @@ git clone https://github.com/wagtail/wagtail-newsletter.git
 cd wagtail-newsletter
 ```
 
-With your preferred virtualenv activated, install development dependencies:
+Install development dependencies:
 
 ### Using uv (recommended)
 
