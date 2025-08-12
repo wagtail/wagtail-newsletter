@@ -1,4 +1,3 @@
-from copy import copy
 from typing import Any, Optional
 
 from django.core.exceptions import ValidationError
@@ -158,10 +157,10 @@ class NewsletterPageMixin(Page):
         return {"page": self}
 
     def get_newsletter_html(self, extra_context=None) -> SafeString:
-        context = self.get_newsletter_context()
-        if extra_context:
-            context = copy(context)
-            context.update(extra_context)
+        context = {
+            **self.get_newsletter_context(),
+            **(extra_context or {}),
+        }
         return render_to_string(
             template_name=self.get_newsletter_template(),
             context=context,
