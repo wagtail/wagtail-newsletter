@@ -22,17 +22,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up Python 3.9
+      - name: Set up Python 3.10
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.10'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
       - name: Install dependencies
-        env:
-          FLIT_ROOT_INSTALL: true
         run: |
-          python -m pip install flit
-          python -m flit install --deps=production --extras=mailchimp,mrml,testing,ci --symlink
-      - uses: pre-commit/action@v3.0.1
+          uv sync --extra=dev
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+      - name: Run pre-commit
+        run: uv tool run --with=pre-commit-uv pre-commit run --all-files
       - uses: jakebailey/pyright-action@v2
         with:
           version: PATH
@@ -50,12 +51,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: Install
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install .[ci]
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
       - name: Test
-        run: tox
+        run: uv tool run --with=tox-uv --with=tox-gh-actions tox
         env:
           DB: sqlite
 
@@ -64,11 +63,11 @@ jobs:
     needs: lint
     strategy:
       matrix:
-        python: ['3.9', '3.10', '3.11', '3.12', '3.13']
+        python: ['3.10', '3.11', '3.12', '3.13']
 
     services:
       postgres:
-        image: ${{ matrix.postgres || 'postgres:13' }}
+        image: ${{ matrix.postgres || 'postgres:14' }}
         env:
           POSTGRES_PASSWORD: postgres
         ports:
@@ -81,12 +80,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: Install
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install .[ci]
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
       - name: Test
-        run: tox
+        run: uv tool run --with=tox-uv --with=tox-gh-actions tox
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/wagtail_newsletter
           DB: postgres

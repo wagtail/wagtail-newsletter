@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+- Development tooling with `uv` (#85)
+- Support for Django 5.2, Wagtail 7.0 and 7.1. (#85)
+
+### Removed
+
+- Support for Python 3.9, Django 5.0, Wagtail 5.2 and 6.4. (#85)
+
 ## [0.2.2] - 2025-04-16
 
 ### Added
