@@ -21,7 +21,7 @@ When sending a newsletter, this value will appear as the email sender's name.
 
 .. code-block:: python
 
-  WAGTAIL_NEWSLETTER_FROM_NAME = "bakerytips@example.com"
+  WAGTAIL_NEWSLETTER_REPLY_TO = "bakerytips@example.com"
 
 When sending a newsletter, this value will appear as the email sender's
 address. Be sure to configure your email domain to allow the newsletter service

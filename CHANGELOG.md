@@ -8,7 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- Development tooling with `uv` (#85)
+- Support for Django 5.2, Wagtail 7.0 and 7.1. (#85)
 - Add extra context to `get_newsletter_html` (#88)
+
+### Removed
+
+- Support for Python 3.9, Django 5.0, Wagtail 5.2 and 6.4. (#85)
 
 ## [0.2.2] - 2025-04-16
 
