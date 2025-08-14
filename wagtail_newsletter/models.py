@@ -156,10 +156,14 @@ class NewsletterPageMixin(Page):
     def get_newsletter_context(self) -> "dict[str, Any]":
         return {"page": self}
 
-    def get_newsletter_html(self) -> SafeString:
+    def get_newsletter_html(self, extra_context=None) -> SafeString:
+        context = {
+            **self.get_newsletter_context(),
+            **(extra_context or {}),
+        }
         return render_to_string(
             template_name=self.get_newsletter_template(),
-            context=self.get_newsletter_context(),
+            context=context,
         )
 
     def get_newsletter_subject(self) -> str:
