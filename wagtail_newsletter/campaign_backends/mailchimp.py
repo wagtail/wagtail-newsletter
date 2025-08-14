@@ -20,13 +20,22 @@ from ..models import NewsletterRecipientsBase
 from . import Campaign, CampaignBackend, CampaignBackendError
 
 
+logger = logging.getLogger(__name__)
+
+
 class CampaignStatus(Enum):
     DRAFT = "save"
     SCHEDULED = "schedule"
     PAUSED = "paused"
 
 
-logger = logging.getLogger(__name__)
+class SegmentType(Enum):
+    STATIC = "static"  # Mailchimp Tags
+    SAVED = "saved"  # Mailchimp Segments created manually
+    CAMPAIGN_STATIC = (
+        "campaign_static"  # Pastes of email addresses into the campaign editor
+    )
+    FUZZY = "fuzzy"  # purpose remains fuzzy
 
 
 @dataclass
@@ -109,9 +118,22 @@ class MailchimpCampaignBackend(CampaignBackend):
             for audience in audiences
         ]
 
-    def get_audience_segments(self, audience_id) -> "list[AudienceSegment]":
+    def get_audience_segments(
+        self, audience_id, type=SegmentType.SAVED.value, count=1000
+    ) -> "list[AudienceSegment]":
+        """
+        Fetch audience segments from Mailchimp.
+
+        `type`: filter by segment type.  By default, only "saved" segments are fetched,
+        which are the segments created manually by the Mailchimp admin.
+
+        `count`: how many items to fetch. By default, 1000 items are fetched, which is
+        the maximum allowed by Mailchimp, so that we don't have to implement pagination.
+        """
         try:
-            segments = self.client.lists.list_segments(audience_id)["segments"]
+            segments = self.client.lists.list_segments(
+                audience_id, type=type, count=count
+            )["segments"]
 
         except ApiClientError as error:
             if error.status_code == 404:
