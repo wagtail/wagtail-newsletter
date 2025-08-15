@@ -22,10 +22,10 @@ jobs:
 
       - run: git clone https://github.com/wagtail/wagtail.git
 
-      - run: uv sync --extra=testing --extra=mailchimp --extra=mrml
+      - run: uv sync --extra=dev
       - run: uv pip install ./wagtail
 
-      - run: pytest -vv
+      - run: uv run pytest -vv
 
       - name: Report failure
         run: |
