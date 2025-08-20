@@ -59,6 +59,7 @@ mrml = [
 dev = [
     "wagtail-newsletter[testing,docs,mailchimp,mrml]",
     "psycopg",
+    "flit",
 ]
 
 [project.urls]
