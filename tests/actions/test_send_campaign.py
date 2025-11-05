@@ -41,7 +41,14 @@ def test_send_campaign(
     assert "Newsletter campaign is now sending" in html
 
     assert memory_backend.save_campaign.mock_calls == [
-        call(campaign_id="", recipients=None, subject=page.title, html=ANY)
+        call(
+            campaign_id="",
+            recipients=None,
+            subject=page.title,
+            html=ANY,
+            from_name=page.get_newsletter_from_name(),
+            reply_to=page.get_newsletter_reply_to(),
+        )
     ]
     assert memory_backend.send_campaign.mock_calls == [call(CAMPAIGN_ID)]
 

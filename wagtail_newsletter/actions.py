@@ -20,6 +20,8 @@ def save_campaign(request, page: NewsletterPageMixin) -> None:
             recipients=version.newsletter_recipients,
             subject=subject,
             html=version.get_newsletter_html(),
+            from_name=version.get_newsletter_from_name(),
+            reply_to=version.get_newsletter_reply_to(),
         )
 
     except campaign_backends.CampaignBackendError as error:

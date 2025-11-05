@@ -40,7 +40,14 @@ def test_save_campaign(
     assert f'href="{CAMPAIGN_URL}"' in html
 
     assert memory_backend.save_campaign.mock_calls == [
-        call(campaign_id="", recipients=None, subject=page.title, html=ANY)
+        call(
+            campaign_id="",
+            recipients=None,
+            subject=page.title,
+            html=ANY,
+            from_name=page.get_newsletter_from_name(),
+            reply_to=page.get_newsletter_reply_to(),
+        )
     ]
 
     page.refresh_from_db()

@@ -42,7 +42,14 @@ def test_send_test_email(
     assert f"Test message sent to &#x27;{EMAIL}&#x27;" in html
 
     assert memory_backend.save_campaign.mock_calls == [
-        call(campaign_id="", recipients=None, subject=page.title, html=ANY)
+        call(
+            campaign_id="",
+            recipients=None,
+            subject=page.title,
+            html=ANY,
+            from_name=page.get_newsletter_from_name(),
+            reply_to=page.get_newsletter_reply_to(),
+        )
     ]
     assert memory_backend.send_test_email.mock_calls == [
         call(campaign_id=CAMPAIGN_ID, email=EMAIL)
