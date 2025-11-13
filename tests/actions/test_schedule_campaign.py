@@ -24,8 +24,14 @@ def get_schedule_time(delta: timedelta):
 
 
 def test_schedule_campaign(
-    page: ArticlePage, admin_client: Client, memory_backend: MemoryCampaignBackend
+    page: ArticlePage,
+    settings,
+    admin_client: Client,
+    memory_backend: MemoryCampaignBackend,
 ):
+    settings.WAGTAIL_NEWSLETTER_FROM_NAME = "Test From Name"
+    settings.WAGTAIL_NEWSLETTER_REPLY_TO = "test_replyto@example.com"
+
     memory_backend.save_campaign = Mock(return_value=CAMPAIGN_ID)
     memory_backend.get_campaign = Mock(return_value=Mock(url=CAMPAIGN_URL))
     memory_backend.schedule_campaign = Mock()
@@ -54,8 +60,8 @@ def test_schedule_campaign(
             recipients=None,
             subject=page.title,
             html=ANY,
-            from_name=page.get_newsletter_from_name(),
-            reply_to=page.get_newsletter_reply_to(),
+            from_name="Test From Name",
+            reply_to="test_replyto@example.com",
         )
     ]
     assert memory_backend.schedule_campaign.mock_calls == [
