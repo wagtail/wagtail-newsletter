@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models
 from django.conf import settings
 from django.http import HttpResponse
