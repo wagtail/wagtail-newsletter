@@ -1,8 +1,8 @@
 from typing import Any, Optional
 
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models
-from django.conf import settings
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.safestring import SafeString

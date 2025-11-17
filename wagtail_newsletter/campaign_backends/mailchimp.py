@@ -225,7 +225,6 @@ class MailchimpCampaignBackend(CampaignBackend):
         from_name: str,
         html: str,
     ) -> str:
-
         body = self.get_campaign_request_body(
             recipients=recipients,
             subject=subject,
