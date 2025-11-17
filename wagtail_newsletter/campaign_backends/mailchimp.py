@@ -190,12 +190,14 @@ class MailchimpCampaignBackend(CampaignBackend):
         self,
         *,
         recipients: Optional[NewsletterRecipientsBase],
+        from_name: str,
+        reply_to: str,
         subject: str,
     ) -> "dict[str, Any]":
         body = {
             "settings": {
-                "from_name": _require_setting("WAGTAIL_NEWSLETTER_FROM_NAME"),
-                "reply_to": _require_setting("WAGTAIL_NEWSLETTER_REPLY_TO"),
+                "from_name": from_name,
+                "reply_to": reply_to,
                 "subject_line": subject,
             },
         }
@@ -219,9 +221,17 @@ class MailchimpCampaignBackend(CampaignBackend):
         campaign_id: Optional[str] = None,
         recipients: Optional[NewsletterRecipientsBase],
         subject: str,
+        reply_to: str,
+        from_name: str,
         html: str,
     ) -> str:
-        body = self.get_campaign_request_body(recipients=recipients, subject=subject)
+
+        body = self.get_campaign_request_body(
+            recipients=recipients,
+            subject=subject,
+            from_name=from_name,
+            reply_to=reply_to,
+        )
 
         if campaign_id:
             campaign_id = self._update_campaign(campaign_id, body)

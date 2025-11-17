@@ -18,8 +18,14 @@ EMAIL = "test@example.com"
 
 
 def test_save_campaign(
-    page: ArticlePage, admin_client: Client, memory_backend: MemoryCampaignBackend
+    page: ArticlePage,
+    settings,
+    admin_client: Client,
+    memory_backend: MemoryCampaignBackend,
 ):
+    settings.WAGTAIL_NEWSLETTER_FROM_NAME = "Test From Name"
+    settings.WAGTAIL_NEWSLETTER_REPLY_TO = "test_replyto@example.com"
+
     memory_backend.save_campaign = Mock(return_value=CAMPAIGN_ID)
     memory_backend.get_campaign = Mock(return_value=Mock(url=CAMPAIGN_URL))
 
@@ -40,7 +46,14 @@ def test_save_campaign(
     assert f'href="{CAMPAIGN_URL}"' in html
 
     assert memory_backend.save_campaign.mock_calls == [
-        call(campaign_id="", recipients=None, subject=page.title, html=ANY)
+        call(
+            campaign_id="",
+            recipients=None,
+            subject=page.title,
+            html=ANY,
+            from_name="Test From Name",
+            reply_to="test_replyto@example.com",
+        )
     ]
 
     page.refresh_from_db()

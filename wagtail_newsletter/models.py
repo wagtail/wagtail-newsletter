@@ -2,6 +2,7 @@ from typing import Any, Optional
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.conf import settings
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.safestring import SafeString
@@ -168,6 +169,18 @@ class NewsletterPageMixin(Page):
 
     def get_newsletter_subject(self) -> str:
         return self.newsletter_subject or self.title
+
+    def get_newsletter_from_name(self) -> str:
+        from_name = getattr(settings, "WAGTAIL_NEWSLETTER_FROM_NAME", None)
+        if from_name is None:
+            raise ImproperlyConfigured("WAGTAIL_NEWSLETTER_FROM_NAME is not set")
+        return from_name
+
+    def get_newsletter_reply_to(self) -> str:
+        reply_to = getattr(settings, "WAGTAIL_NEWSLETTER_REPLY_TO", None)
+        if reply_to is None:
+            raise ImproperlyConfigured("WAGTAIL_NEWSLETTER_REPLY_TO is not set")
+        return reply_to
 
     def serve_preview(self, request, mode_name):  # type: ignore
         if mode_name == "newsletter":

@@ -18,8 +18,14 @@ EMAIL = "test@example.com"
 
 
 def test_send_campaign(
-    page: ArticlePage, admin_client: Client, memory_backend: MemoryCampaignBackend
+    page: ArticlePage,
+    settings,
+    admin_client: Client,
+    memory_backend: MemoryCampaignBackend,
 ):
+    settings.WAGTAIL_NEWSLETTER_FROM_NAME = "Test From Name"
+    settings.WAGTAIL_NEWSLETTER_REPLY_TO = "test_replyto@example.com"
+
     memory_backend.save_campaign = Mock(return_value=CAMPAIGN_ID)
     memory_backend.get_campaign = Mock(return_value=Mock(url=CAMPAIGN_URL))
     memory_backend.send_campaign = Mock()
@@ -41,7 +47,14 @@ def test_send_campaign(
     assert "Newsletter campaign is now sending" in html
 
     assert memory_backend.save_campaign.mock_calls == [
-        call(campaign_id="", recipients=None, subject=page.title, html=ANY)
+        call(
+            campaign_id="",
+            recipients=None,
+            subject=page.title,
+            html=ANY,
+            from_name="Test From Name",
+            reply_to="test_replyto@example.com",
+        )
     ]
     assert memory_backend.send_campaign.mock_calls == [call(CAMPAIGN_ID)]
 
