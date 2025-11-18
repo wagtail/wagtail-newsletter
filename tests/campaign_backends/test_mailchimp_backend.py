@@ -410,10 +410,15 @@ def test_log_and_raise(caplog: pytest.LogCaptureFixture):
 
 def test_inject_campaign_settings():
     class InjectBackend(MockMailchimpCampaignBackend):
-        def get_campaign_request_body(self, *, recipients, subject, from_name, reply_to):
+        def get_campaign_request_body(
+            self, *, recipients, subject, from_name, reply_to
+        ):
             return dict(
                 super().get_campaign_request_body(
-                    recipients=recipients, subject=subject, from_name=from_name, reply_to=reply_to
+                    recipients=recipients,
+                    subject=subject,
+                    from_name=from_name,
+                    reply_to=reply_to,
                 ),
                 test_key="test_value",
             )

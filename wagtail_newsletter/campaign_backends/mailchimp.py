@@ -203,15 +203,16 @@ class MailchimpCampaignBackend(CampaignBackend):
         }
 
         if recipients is not None:
-            body["recipients"] = {
+            recipients_mapping: dict[str, Any] = {
                 "list_id": recipients.audience,
             }
 
             if recipients.segment:
                 segment_id = int(recipients.segment.split("/")[1])
-                body["recipients"]["segment_opts"] = {
+                recipients_mapping["segment_opts"] = {
                     "saved_segment_id": segment_id,
                 }
+            body["recipients"] = recipients_mapping
 
         return body
 
@@ -225,7 +226,6 @@ class MailchimpCampaignBackend(CampaignBackend):
         from_name: str,
         html: str,
     ) -> str:
-
         body = self.get_campaign_request_body(
             recipients=recipients,
             subject=subject,
