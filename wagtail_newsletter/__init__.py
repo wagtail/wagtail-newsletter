@@ -4,7 +4,7 @@ from django.conf import settings
 default_app_config = "wagtail_newsletter.apps.WagtailNewsletterAppConfig"
 
 
-VERSION = (0, 2, 3)
+VERSION = (0, 2, 4)
 __version__ = ".".join(map(str, VERSION))
 
 
