@@ -1,5 +1,3 @@
-import os
-
 from pathlib import Path
 
 import dj_database_url
@@ -14,7 +12,7 @@ SECRET_KEY = "not-a-secure-key"  # noqa: S105
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 INTERNAL_IPS = [
     "127.0.0.1",
@@ -115,9 +113,8 @@ WAGTAILADMIN_BASE_URL = "http://localhost:8000"
 WAGTAIL_SITE_NAME = "Wagtail Newsletter demo site"
 WAGTAIL_GRAVATAR_PROVIDER_URL = None
 
-WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY = os.environ.get(
-    "WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY"
-)
+WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY = "test-api-key-123456"
+
 WAGTAIL_NEWSLETTER_RECIPIENTS_MODEL = "demo.CustomRecipients"
-WAGTAIL_NEWSLETTER_FROM_NAME = os.environ.get("WAGTAIL_NEWSLETTER_FROM_NAME")
-WAGTAIL_NEWSLETTER_REPLY_TO = os.environ.get("WAGTAIL_NEWSLETTER_REPLY_TO")
+WAGTAIL_NEWSLETTER_FROM_NAME = "Pratyush from DemoSite"
+WAGTAIL_NEWSLETTER_REPLY_TO = "pratyush@email.com"

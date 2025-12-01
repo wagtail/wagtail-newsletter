@@ -8,7 +8,9 @@ from . import campaign_backends, forms
 from .models import NewsletterPageMixin
 
 
-def save_campaign(request, page: NewsletterPageMixin) -> None:
+def save_campaign(
+    request, page: NewsletterPageMixin, message_user: bool = True
+) -> None:
     backend = campaign_backends.get_backend()
     revision = page.latest_revision
     version = cast(NewsletterPageMixin, revision.as_object())
@@ -39,9 +41,10 @@ def save_campaign(request, page: NewsletterPageMixin) -> None:
         content_changed=True,
     )
 
-    messages.success(
-        request, f"Newsletter campaign {subject!r} has been saved to {backend.name}"
-    )
+    if message_user:
+        messages.success(
+            request, f"Newsletter campaign {subject!r} has been saved to {backend.name}"
+        )
 
 
 def send_test_email(request, page: NewsletterPageMixin) -> None:
@@ -54,9 +57,13 @@ def send_test_email(request, page: NewsletterPageMixin) -> None:
 
     email = form.cleaned_data["email"]
 
-    save_campaign(request, page)
+    save_campaign(request, page, message_user=False)
 
     backend = campaign_backends.get_backend()
+    backend = campaign_backends.get_backend()
+    revision = page.latest_revision
+    version = cast(NewsletterPageMixin, revision.as_object())
+    subject = version.get_newsletter_subject()
 
     try:
         backend.send_test_email(
@@ -70,13 +77,19 @@ def send_test_email(request, page: NewsletterPageMixin) -> None:
 
     log(page, "wagtail_newsletter.send_test_email", data={"email": email})
 
-    messages.success(request, f"Test message sent to {email!r}")
+    messages.success(
+        request,
+        f"Newsletter campaign {subject!r} has been saved to {backend.name}. Test message sent to {email!r}",
+    )
 
 
 def send_campaign(request, page: NewsletterPageMixin) -> None:
-    save_campaign(request, page)
+    save_campaign(request, page, message_user=False)
 
     backend = campaign_backends.get_backend()
+    revision = page.latest_revision
+    version = cast(NewsletterPageMixin, revision.as_object())
+    subject = version.get_newsletter_subject()
 
     try:
         backend.send_campaign(page.newsletter_campaign)
@@ -87,7 +100,10 @@ def send_campaign(request, page: NewsletterPageMixin) -> None:
 
     log(page, "wagtail_newsletter.send_campaign")
 
-    messages.success(request, "Newsletter campaign is now sending")
+    messages.success(
+        request,
+        f"Newsletter campaign {subject!r} has been saved to {backend.name}. Newsletter campaign is now sending",
+    )
 
 
 def schedule_campaign(request, page: NewsletterPageMixin) -> None:
@@ -101,6 +117,9 @@ def schedule_campaign(request, page: NewsletterPageMixin) -> None:
     schedule_time = form.cleaned_data["schedule_time"]
 
     backend = campaign_backends.get_backend()
+    revision = page.latest_revision
+    version = cast(NewsletterPageMixin, revision.as_object())
+    subject = version.get_newsletter_subject()
 
     try:
         backend.validate_schedule_time(schedule_time)
@@ -108,7 +127,7 @@ def schedule_campaign(request, page: NewsletterPageMixin) -> None:
         messages.error(request, error.message)
         return
 
-    save_campaign(request, page)
+    save_campaign(request, page, message_user=False)
 
     try:
         backend.schedule_campaign(
@@ -127,4 +146,7 @@ def schedule_campaign(request, page: NewsletterPageMixin) -> None:
     )
 
     when = f"{localize(schedule_time)} {schedule_time.tzname()}"
-    messages.success(request, f"Campaign scheduled to send at {when}")
+    messages.success(
+        request,
+        f"Newsletter campaign {subject!r} has been saved to {backend.name}. Campaign scheduled to send at {when}",
+    )
