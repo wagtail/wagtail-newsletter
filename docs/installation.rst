@@ -93,7 +93,7 @@ scenes it uses the mrml_ library.
 Configure recipients
 --------------------
 
-Finally, we need to configure recipients for our newsletteres. Go to Wagtail
+Finally, we need to configure recipients for our newsletters. Go to Wagtail
 admin and click on *Settings*, then *Newsletter Recipients*, and create a new
 Recipients record. Give it a descriptive name, and select an *audience* from
 Mailchimp, and optionally an *audience segment*, and click *Create*. When
