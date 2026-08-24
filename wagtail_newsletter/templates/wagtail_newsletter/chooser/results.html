@@ -1,0 +1,13 @@
+{% extends "wagtailadmin/generic/chooser/results.html" %}
+{% load wagtailadmin_tags %}
+
+{% block no_items_message %}
+    {% if error_message %}
+        <div class="help-block help-critical" role="alert">
+            {% icon name="warning" %}
+            {{ error_message }}
+        </div>
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}

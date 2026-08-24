@@ -2,8 +2,10 @@ from unittest.mock import Mock
 
 import pytest
 
+from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 
+from wagtail_newsletter.campaign_backends import CampaignBackendError
 from wagtail_newsletter.viewsets import Audience, AudienceSegment
 
 from .conftest import MemoryCampaignBackend
@@ -111,3 +113,28 @@ def test_queryish_extra_filters_raises_exception():
         Audience.objects.filter(foo="bar").first()
 
     assert str(error.value) == "Filters not supported: {'foo': 'bar'}"
+
+
+def test_audience_chooser_improperly_configured_error(admin_client, backend):
+    backend.get_audiences = Mock(
+        side_effect=ImproperlyConfigured(
+            "WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY is not set"
+        )
+    )
+    response = admin_client.get(reverse("audience_chooser:choose"))
+    assert response.status_code == 200
+    assert list(response.context["results"].object_list) == []
+    assert (
+        response.context["error_message"]
+        == "Error loading audiences: WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY is not set"
+    )
+    assert "WAGTAIL_NEWSLETTER_MAILCHIMP_API_KEY is not set" in response.json()["html"]
+
+
+def test_audience_chooser_backend_error(admin_client, backend):
+    backend.get_audiences = Mock(side_effect=CampaignBackendError("Mock error"))
+    response = admin_client.get(reverse("audience_chooser:choose"))
+    assert response.status_code == 200
+    assert list(response.context["results"].object_list) == []
+    assert response.context["error_message"] == "Error loading audiences: Mock error"
+    assert "Mock error" in response.json()["html"]
