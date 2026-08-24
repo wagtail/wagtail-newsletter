@@ -1,20 +1,45 @@
+import logging
+
+from django.core.exceptions import ImproperlyConfigured
 from wagtail.admin.panels import FieldPanel
 from wagtail.admin.ui.tables import Column
 from wagtail.admin.views.generic.chooser import ChooseView
 from wagtail.admin.viewsets.chooser import ChooserViewSet
 from wagtail.admin.viewsets.model import ModelViewSet
 
-from . import get_recipients_model_string
+from . import campaign_backends, get_recipients_model_string
 from .audiences import Audience, AudienceSegment
 from .models import NewsletterRecipients
 
 
+logger = logging.getLogger(__name__)
+
+
 class AudienceChooseView(ChooseView):
+    results_template_name = "wagtail_newsletter/chooser/results.html"
+    error_message = None
+
     @property
     def columns(self):  # type: ignore
         return super().columns + [
             Column("member_count", label="Members", accessor="member_count"),
         ]
+
+    def get_results_page(self, request):
+        try:
+            return super().get_results_page(request)
+
+        except (ImproperlyConfigured, campaign_backends.CampaignBackendError) as error:
+            logger.exception("Error loading audiences")
+            self.error_message = f"Error loading audiences: {error}"
+
+        self.paginator = self.paginator_class([], per_page=self.per_page)
+        return self.paginator.page(1)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["error_message"] = self.error_message
+        return context
 
 
 class AudienceChooserViewSet(ChooserViewSet):
